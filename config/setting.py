@@ -6,7 +6,7 @@ MYSQL_HOST = "127.0.0.1"
 MYSQL_PORT = 3306
 MYSQL_USER = "root"
 MYSQL_PASSWD = "123456"
-MYSQL_DB = "flask_demo"
+MYSQL_DB = "test"
 
 # # Redis配置
 # REDIS_HOST = "192.168.89.128"
