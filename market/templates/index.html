@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}
+    Ask Page
+{% endblock %}
+{% block content%}
+<body>    
+<head>
+    <meta charset="UTF-8">
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+    <title>AI病症预测</title>
+</head>
+<body>
+    <div class="container">
+        <h3>医疗建议</h3>
+        <form method="POST" action="/">
+            <label for="condition">请输入你的症状:</label><br>
+            <input type="text" id="condition" name="condition" placeholder="例如:我感觉有些头痛" required><br>
+            <h6>本内容由AI生成，仅供参考</h6>
+            <button type="submit">获取建议</button>
+        </form>
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+        {% if condition and advice %}
+            <h2>结果</h2>
+            <p><span class="condition">病症:</span> {{ condition }}</p>
+            <div class="advice">{{ advice }}</div>
+        {% endif %}
+    </div>
+</body>
+</body>
+{% endblock %}

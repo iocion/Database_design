@@ -6,12 +6,50 @@ from market.forms import RegisterForm,LoginForm,PurchaseItemForm,SellItemForm
 from sqlalchemy.exc import IntegrityError
 from market import db
 from flask_login import login_user,login_required,logout_user,current_user
+from openai import OpenAI  # 加入百度的大模型deepseekR8
 
 
-@app.route("/")
-@app.route("/home")
-def home_page():
-    return render_template('home.html')
+
+client = OpenAI(
+    api_key="525c607104d8891a998419b0d2ad22e0f2f26a7f",
+    base_url="https://api-xa0fv6o8a9m1q9hd.aistudio-app.com/v1"
+)
+
+@app.route("/", methods=["GET", "POST"])
+def index_page():
+    condition = None
+    advice = None
+    error = None
+
+    if request.method == "POST":
+        condition = request.form.get("condition")
+        if not condition:
+            error = "请填写病情内容"
+        else:
+            try:
+                # API call to get medication advice
+                completion = client.chat.completions.create(
+                    model="deepseek-r1:8b",
+                    temperature=0.6,
+                    messages=[
+                        {"role": "user", "content": f"请根据病情 '{condition}' 给病人给出合适的药物和计量，并给出合理的用药建议，内容可以少一些，简介明了"}
+                    ],
+                    stream=True
+                )
+
+                # Collect response from streaming API
+                advice = ""
+                for chunk in completion:
+                    if hasattr(chunk.choices[0].delta, "reasoning_content") and chunk.choices[0].delta.reasoning_content:
+                        advice += chunk.choices[0].delta.reasoning_content
+                    elif chunk.choices[0].delta.content:
+                        advice += chunk.choices[0].delta.content
+
+            except Exception as e:
+                error = f"(无法获取建议):可能触发了违禁词: {str(e)}"
+
+    return render_template("index.html", condition=condition, advice=advice, error=error)
+
 
 
 @app.route('/market',methods=['GET','POST'])
@@ -117,7 +155,7 @@ def login_page():
 def logout_page(): 
     logout_user()
     flash("已经退出登出", category="info")
-    return redirect(url_for('home_page'))
+    return redirect(url_for('index_page'))
 
 
 @app.route("/game")
@@ -125,10 +163,10 @@ def game_page():
      return render_template("game.html")
 
 
-@app.route("/just_for_fun")
-def just_for_fun_page():
-     return render_template("just_for_fun.html")
+# @app.route("/just_for_fun")
+# def just_for_fun_page():
+#      return render_template("just_for_fun.html")
 
-@app.route("/test")
-def testtest():
-     return render_template("rmdb.html")
+# @app.route("/test")
+# def testtest():
+#      return render_template("rmdb.html")
