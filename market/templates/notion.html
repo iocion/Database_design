@@ -1,0 +1,27 @@
+
+{% extends 'base.html' %}
+
+{% block title %}
+    Notion Page
+{% endblock %}
+
+{% block content%}
+<div class="product-device box-shadow d-noe d-md-block"></div>
+<div class="product-device product-device-2 box-shadow d-none d-md-block"> </div>
+  
+<body>
+  <head>
+    <meta charset="UTF-8">
+    <title>Flask select</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/notion.css') }}">
+  </head>
+<div id="app">
+  <h1>Vue Select - Vue 3</h1>
+  <v-select :options="books" label="title"></v-select>
+</div>
+<script src="https://unpkg.com/vue@3.2.45/dist/vue.global.js"></script>
+<script src="https://unpkg.com/vue-select@5.0.0-beta.0/dist/vue-select.js"></script>
+<script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+</body>
+</html>
+{% endblock %}

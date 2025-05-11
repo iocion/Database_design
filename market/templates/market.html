@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Market Page
+{% endblock %}
+
+{% block content %}
+<h2 class="text-center mt-5">在线商店</h2>
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Column for the items on sale -->
+        <div class="col-md-8">
+            <h5>正在售卖中的商品</h5>
+            <p>点击商品名称购买</p>
+
+            <table class="table table-hover table-striped">
+                <thead>
+                    <tr>
+                        <th>编号</th>
+                        <th>商品名称</th>
+                        <th>商品代码</th>
+                        <th>价格</th>
+                        <th>商品信息</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    {% include 'includes/items_modals.html' %}
+                    <tr>
+                        <td>{{ item.id }}</td>
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.barcode }}</td>
+                        <td>${{ item.price }}</td>
+                        <td>
+                            <!-- More Info Button -->
+                            <button class="btn btn-outline-info" data-toggle="modal" data-target="#moreinfo-{{ item.id }}">更多信息</button>
+                            <button class="btn btn-outline-success" data-toggle="modal" data-target="#Modal-PurchaseConfirm-{{ item.id }}">购买</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Column for owned items -->
+        <div class="col-md-4">
+            <h5>已拥有商品</h5>
+            <p>点击商品即可将其重新放入市场出售</p>
+
+            <div class="row">
+                {% if owned_items %}
+                    {% for owned_item in owned_items %}
+                    {% include 'includes/owned_items_modals.html' %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card text-center bg-dark">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ owned_item.name }}</h5>
+                                <button type="button" class="btn btn-outline-danger mb-2"
+                                    data-toggle="modal" data-target="#Modal-SellingConfirm-{{ owned_item.id }}">
+                                    出售此商品
+                                </button>
+                                <p class="card-text"><strong>售价: ${{ owned_item.price }}</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title">没有商品</h5>
+                                <button type="button" class="btn btn-outline-success mb-2">
+                                    出售商品
+                                </button>
+                                <p class="card-text"><strong>您没有任何商品出售</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Materialize JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+<!-- Initialize Materialize Modals -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var modals = document.querySelectorAll('.modal');
+        M.Modal.init(modals);
+    });
+</script>
+{% endblock %}

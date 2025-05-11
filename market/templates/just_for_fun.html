@@ -1,0 +1,59 @@
+<link rel="stylesheet" href="{{ url_for('static', filename='css/for_fun.css') }}">
+<div class="controls">
+    <div class="control-group">
+      <label for="charSet">Settings:字符设置</label>
+      <select id="charSet" onchange="updateSettings()">
+        <option value="tech1">Tech/Code Symbols 1</option>
+        <option value="tech2">Tech/Code Symbols 2</option>
+        <option value="math">Math & Binary</option>
+        <option value="cryptic">Cryptic/Alien</option>
+        <option value="mixed">Mixed Languages</option>
+        <option value="alphabet">Alphabet</option>
+        <option value="matrix1">Matrix 1</option>
+        <option value="matrix2">Matrix 2</option>
+        <option value="matrix3">Chinese Characters</option>
+        <option value="matrix4">Japanese Kanji</option>
+        <option value="emoji1">Emoji 1</option>
+        <option value="emoji2">Emoji 2</option>
+        <option value="emoji3">Emoji 3</option>
+      </select>
+    </div>
+<body>  
+    <script src="{{ url_for('static', filename='js/fun.js') }}"></script>
+    <div class="control-group">
+      <label for="customText">自定义文本:</label>
+      <textarea id="customText" class="custom-text" placeholder="Enter custom text..."></textarea>
+    </div>
+    
+    <div class="control-group">
+      <label for="revealSpeed">显示速度:</label>
+      <input type="range" id="revealSpeed" min="1" max="10" value="10" onchange="updateSettings()">
+    </div>
+    
+    <div class="control-group">
+      <label for="changeFreq">变更频率:</label>
+      <!-- <input type="range" id="changeFreq" min="1" max="100" value="28" onchange="updateSettings()"> -->
+      <input type="range" id="glowIntensity" min="1" max="100" value="28">
+    </div>
+    
+    <div class="control-group">
+      <label for="glowIntensity">光的强度</label>
+      <!-- <input type="range" id="glowIntensity" min="0" max="20" value="8" onchange="updateGlow()"> -->
+      <input type="range" id="glowIntensity" min="1" max="20" value="8">
+    </div>
+    
+    <div class="control-group">
+      <label>更改颜色</label>
+      <div class="color-picker">
+        <input type="color" id="bgColor" value="#111111" class="color-input" onchange="updateColors()">
+        <input type="color" id="textColor" value="#00ff00" class="color-input" onchange="updateColors()">
+      </div>
+    </div>
+    
+    <!-- <button class="btn" onclick="playAnimation()">Reveal Text</button> -->
+    <button id="playButton">播放动画</button>
+  </div>
+  <div class="text-container" id="text"></div>
+
+</body>
+  

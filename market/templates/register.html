@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}
+Register Page
+{% endblock %}
+{% block content %}
+<body class="text-center">
+    <div class="container d-flex justify-content-center align-items-center" style="height: 100vh;">
+       <div class="row bg-light p-4 rounded shadow" style="max-width: 500px; width: 100%;">
+          <div class="col-12">
+             <img class="mb-4" src="/static/test.jpg" alt="Logo" style="width: 100px; height: auto;">
+             <h1 class="h3 mb-4 font-weight-normal">注册账号</h1>
+             <form method="POST" class="form-register" style="color: rgb(130, 130, 179);">
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                   {{ form.username.label(class="form-label") }}
+                   {{ form.username(class="form-control", placeholder="User Name") }}
+                </div>
+                <div class="form-group">
+                   {{ form.email_address.label(class="form-label") }}
+                   {{ form.email_address(class="form-control", placeholder="Email Address") }}
+                </div>
+                <div class="form-group">
+                   {{ form.password1.label(class="form-label") }}
+                   {{ form.password1(class="form-control", placeholder="Password") }}
+                </div>
+                <div class="form-group">
+                   {{ form.password2.label(class="form-label") }}
+                   {{ form.password2(class="form-control", placeholder="Confirm Password") }}
+                </div>
+                <br>
+                <div class="checkbox mb-3 text-center">
+                   <h6>已经有账户了？</h6>
+                   <a class="btn btn-sm btn-secondary" href="{{ url_for('login_page') }}">点击登录</a>
+                </div>
+
+                {{ form.submit(value="提交注册",class="btn btn-lg btn-block btn-primary") }}
+             </form>
+          </div>
+       </div>
+    </div>
+ </body>
+{% endblock %}

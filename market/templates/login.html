@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}
+Login Page
+{% endblock %}
+
+
+{% block content %}
+<body class="text-center">
+    <div class="container d-flex justify-content-center align-items-center" style="height: 100vh;">
+       <div class="bg-light p-4 rounded shadow" style="max-width: 400px; width: 100%;">
+          <h1 class="h3 mb-3 font-weight-normal">请登录您的账户</h1>
+          <form method="POST" class="form-signin" style="color: rgb(130, 130, 179);">
+             {{ form.hidden_tag() }}
+ 
+             <div class="form-group">
+                {{ form.username.label(class="form-label") }}
+                {{ form.username(class="form-control", placeholder="User Name") }}
+             </div>
+ 
+             <div class="form-group">
+                {{ form.password.label(class="form-label") }}
+                {{ form.password(class="form-control", placeholder="Password") }}
+             </div>
+ 
+             <br>
+ 
+             <div class="checkbox mb-2 text-center">
+                <h6> 是否没有账号?</h6>
+                <a class="btn btn-sm btn-secondary" href="{{ url_for('register_page') }}">点击注册账号</a>
+             </div>
+ 
+             <div class="form-group">
+                {{ form.submit(value="点击登录" , class="btn btn-lg btn-block btn-primary") }}
+             </div>
+          </form>
+       </div>
+    </div>
+ </body>
+{% endblock %}
