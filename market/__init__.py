@@ -21,4 +21,5 @@ from market import routes
 # from market import app
 # with app.app_context():
 #     db.create_all()  # 创建表格
+#我加了一段注释git
     
