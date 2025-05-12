@@ -21,7 +21,12 @@ class RegisterForm(FlaskForm):
     password2 = PasswordField(label='Confirm password:',validators=[EqualTo('password1'),DataRequired()]) # confirm password2 == password1
     submit = SubmitField(label='Submit')
 
+# class MedicineForm(FlaskForm):
+#     def validate_on_medicin_name(self,medicine_name_to_check):
+#         medicine_name_to_check = MedicineForm.query.filter_by(medicin_name=medicine_name_to_check.data).first()
 
+
+        
 class LoginForm(FlaskForm):
     username = StringField(label='User Name',validators=[DataRequired()])
     password = StringField(label='Password:',validators=[DataRequired()])

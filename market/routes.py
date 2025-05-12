@@ -25,7 +25,7 @@ def user_to_dict(user):
 
 def get_users_json_external():
     users = User.query.all()
-    users_list = [user_to_dict(user) for user in users]
+    users_list = [user_to_dict(user) for user in users]  # 转化成列表形式
     return jsonify(users_list)
     
 
@@ -87,10 +87,10 @@ def market_page():
                 if current_user.can_purchase(p_item_object):    
                     if current_user.budget >= p_item_object.price:   # 判断金额是否大于budget
                         p_item_object.buy(current_user)
-                        flash(f"恭喜你! 你成功购买了 {p_item_object} for {p_item_object.price}")
+                        flash(f"购买成功",category="success")
                     else:
                         missing_money = p_item_object.price-current_user.budget
-                        flash(f"没有钱买{p_item_object.name},还需要{missing_money}元",category="danger")
+                        flash(f"余额不足，还需要{missing_money}元",category="danger")
         # Sell Item logic
         sold_item = request.form.get('sold_item')
         s_item_object = Item.query.filter_by(name=sold_item).first()

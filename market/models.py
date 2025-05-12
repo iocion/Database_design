@@ -18,6 +18,7 @@ class User(db.Model,UserMixin):
 # backreference
 
 
+
     @property
     def prettier_budget(self):
         if len(str(self.budget))>=4: #超过三位，中间显示" , "

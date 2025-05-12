@@ -1,3 +1,4 @@
+
 <!-- Button trigger modal -->
 <style>
    .modal-content{
@@ -5,9 +6,7 @@
    }
 </style>
 <!-- 查看详细信息 -->
-<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-    hello
-    </button>
+
     <!-- Modal -->
     <div class="modal fade" id="moreinfo-{{ item.id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
        <div class="modal-dialog" role="document">
@@ -27,7 +26,10 @@
                描述：{{ item.description }}
             </div>
             <div class="modal-body">
-               {{ item.barcode }}
+               价格：{{ item.price }}
+            </div>
+            <div class="modal-body">
+               存储编码:{{ item.barcode }}
             </div>
              <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
@@ -55,11 +57,11 @@
                  <form method="POST">
                      {{ purchase_form.hidden_tag() }}
                      <h6 class="text-center">
-                        你确定要花费{{ item.price }}$来购买{{ item.name }}吗？
+                        你确定要花费{{ item.price }}元来购买{{ item.name }}吗？
                      </h6>
                      <br>
                      <h8 class="text-center">
-                        点击立即购买
+                        点击购买
                      </h8>
                      <br>
                      <input id="purchase_item" name="purchase_item" type="hidden" value="{{ item.name }}">
