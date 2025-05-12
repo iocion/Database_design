@@ -1,6 +1,0 @@
-export FLASK_APP=market.py
-export FLASK_DEBUG=1 # [0]
-# windows replace 'export' to 'set'
-
-flask run # run flask app
-hello
