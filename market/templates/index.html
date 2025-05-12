@@ -11,7 +11,7 @@
 </head>
 <body>
     <div class="container">
-        <h3>医疗建议</h3>
+        <h3>医疗以及药物建议</h3>
         <form method="POST" action="/">
             <label for="condition">请输入你的症状:</label><br>
             <input type="text" id="condition" name="condition" placeholder="例如:我感觉有些头痛" required><br>
@@ -22,9 +22,9 @@
             <p class="error">{{ error }}</p>
         {% endif %}
         {% if condition and advice %}
-            <h2>结果</h2>
+            <h5>结果</h5>
             <p><span class="condition">病症:</span> {{ condition }}</p>
-            <div class="advice">{{ advice }}</div>
+            <div class="advice">{{ advice|safe }}</div>
         {% endif %}
     </div>
 </body>

@@ -2,9 +2,12 @@ from flask import Flask,render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
+import pymysql
 # from market.models import Item
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///market.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:111111@localhost/test1'  # 替换为你的 MySQL 连接信息
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///market.db'
 app.config['SECRET_KEY'] ='db92354e927ef71db526f676'
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app) 

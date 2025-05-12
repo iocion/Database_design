@@ -10,7 +10,7 @@ completion = client.chat.completions.create(
     model="deepseek-r1:8b",
     temperature=0.6,
     messages=[
-        {"role": "user", "content": "请根据病情给病人给出合适的药物和计量,并给出合理的用药建议"}
+        {"role": "user", "content": "你好，请介绍一下你自己"}
     ],
     stream=True
 )

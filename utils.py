@@ -28,7 +28,7 @@ class MysqlDb():
         self.conn.ping(reconnect=True)
         # 使用 execute() 执行sql
         self.cur.execute(sql)
-        # 使用 fetchall() 获取查询结果
+        # 使用 fetchall() 获取查询·
         data = self.cur.fetchall()
         return data
 

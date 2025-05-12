@@ -1,19 +1,33 @@
 # -*- coding: utf-8 -*-
 from market import app
-from flask import render_template,redirect,url_for,flash,get_flashed_messages, request
+from flask import render_template,redirect,url_for,flash,get_flashed_messages, request,jsonify
 from market.models import Item,User
 from market.forms import RegisterForm,LoginForm,PurchaseItemForm,SellItemForm
 from sqlalchemy.exc import IntegrityError
 from market import db
 from flask_login import login_user,login_required,logout_user,current_user
 from openai import OpenAI  # 加入百度的大模型deepseekR8
-
-
+import markdown
+import re # 用来进行文本处理
+# from mistralai.client import MistralClient
 
 client = OpenAI(
     api_key="525c607104d8891a998419b0d2ad22e0f2f26a7f",
     base_url="https://api-xa0fv6o8a9m1q9hd.aistudio-app.com/v1"
 )
+def user_to_dict(user):
+    return {
+        'id': user.id,
+        'username': user.username,
+        'email_address': user.email_address,
+        'budget': user.budget
+    }
+
+def get_users_json_external():
+    users = User.query.all()
+    users_list = [user_to_dict(user) for user in users]
+    return jsonify(users_list)
+    
 
 @app.route("/", methods=["GET", "POST"])
 def index_page():
@@ -32,23 +46,31 @@ def index_page():
                     model="deepseek-r1:8b",
                     temperature=0.6,
                     messages=[
-                        {"role": "user", "content": f"请根据病情 '{condition}' 给病人给出合适的药物和计量，并给出合理的用药建议，内容可以少一些，简介明了"}
+                        {"role": "user", "content": f"请根据病情 '{condition}' 给出病人可能需要服用的药物，并告诉每一种药物的使用流程，内容精简，，简介明了"}
                     ],
                     stream=True
                 )
 
                 # Collect response from streaming API
+                # reasoning="" # 分解推理内容和最终内容
                 advice = ""
                 for chunk in completion:
                     if hasattr(chunk.choices[0].delta, "reasoning_content") and chunk.choices[0].delta.reasoning_content:
                         advice += chunk.choices[0].delta.reasoning_content
                     elif chunk.choices[0].delta.content:
                         advice += chunk.choices[0].delta.content
+                advice = "".join(advice)
+                # 使用正则表达式去除 <think> 标签及其内部的内容
+                advice = re.sub(r"<think>.*?</think>", "", advice, flags=re.DOTALL)
 
+                advice = markdown.markdown(advice)  # Convert Markdown to HTML
+                print(get_users_json_external())
+                print(advice)
             except Exception as e:
-                error = f"(无法获取建议):可能触发了违禁词: {str(e)}"
+                error = f"{str(e)}"
 
     return render_template("index.html", condition=condition, advice=advice, error=error)
+
 
 
 
@@ -68,7 +90,7 @@ def market_page():
                         flash(f"恭喜你! 你成功购买了 {p_item_object} for {p_item_object.price}")
                     else:
                         missing_money = p_item_object.price-current_user.budget
-                        flash(f"哎呀，没有钱买{p_item_object.name},还需要{missing_money}$",category="danger")
+                        flash(f"没有钱买{p_item_object.name},还需要{missing_money}元",category="danger")
         # Sell Item logic
         sold_item = request.form.get('sold_item')
         s_item_object = Item.query.filter_by(name=sold_item).first()
@@ -111,7 +133,7 @@ def register_page():
                 flash(
                     f'{user_to_create.username}成功注册！！',category='success'
                 )
-                return redirect(url_for('login_page'))
+                return redirect(url_for('index_page'))
         except IntegrityError:
             db.session.rollback()
             # get_flashed_messages("Error: Email address already exists.")
@@ -163,9 +185,13 @@ def game_page():
      return render_template("game.html")
 
 
-# @app.route("/just_for_fun")
+@app.route("/just_for_fun")
 # def just_for_fun_page():
 #      return render_template("just_for_fun.html")
+def just_for_fun_page():
+    # 使用 SQLAlchemy Query API 查询所有用户
+    users = User.query.all()
+    return render_template('just_for_fun.html', users=users)
 
 # @app.route("/test")
 # def testtest():

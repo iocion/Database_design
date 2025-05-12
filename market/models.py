@@ -21,9 +21,9 @@ class User(db.Model,UserMixin):
     @property
     def prettier_budget(self):
         if len(str(self.budget))>=4: #超过三位，中间显示" , "
-            return f'{str(self.budget)[:-3]},{str(self.budget)[-3:]}$' 
+            return f'{str(self.budget)[:-3]},{str(self.budget)[-3:]}元' 
         else:
-            return f"{self.budget}$"
+            return f"{self.budget}元"
         
 
 
