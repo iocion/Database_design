@@ -1,17 +1,35 @@
 {% extends 'base.html' %}
+
 {% block title %}
-    <h1>请登录</h1> 
+    {# <h1>请登录</h1> - This H1 should ideally be within the content block,
+       but keeping it here as per original structure.
+       You might want to move this into the content block for better structure. #}
+    请登录
 {% endblock %}
-<nav class="navbar navbar-expand-md navbar-dark bg-dark">
-    <ul class="navbar-nav">
-        {% if current_user.is_authenticated %}
-            <li class="nav-item">
-                <a class="nav-link" href="#" onclick="confirmLogout()">确认登出</a>
-            </li>
-        {% endif %}
-    </ul>
+
+{#
+  Refactoring the navbar to use Tailwind CSS classes
+  Based on the navbar structure in base_template_tailwind
+#}
+<nav class="bg-gray-800 p-4 text-white shadow-md">
+    <div class="container mx-auto flex justify-between items-center">
+        {# Keeping the original navbar structure as provided, but styled with Tailwind #}
+        <ul class="flex space-x-4"> {# Using flex and space-x for horizontal list items #}
+            {% if current_user.is_authenticated %}
+                <li class="nav-item"> {# nav-item is not a Tailwind class, keeping it for structure #}
+                    <a class="hover:text-blue-300" href="#" onclick="confirmLogout()">确认登出</a> {# Using hover effect from base template #}
+                </li>
+            {% endif %}
+        </ul>
+        {# Added an empty div to maintain flex space if needed, similar to base template #}
+        <div></div>
+    </div>
 </nav>
 
+{#
+  The JavaScript function remains unchanged as per your request.
+  It's placed outside the nav tag but within the template content.
+#}
 <script>
 function confirmLogout() {
     if (confirm("你确定要退出登录吗")) {
@@ -19,3 +37,11 @@ function confirmLogout() {
     }
 }
 </script>
+
+{#
+  Note: The original snippet did not have a content block.
+  If this is intended to be the full content of the page,
+  you might not need a {% block content %}.
+  However, if you have other content for the login page,
+  it should go within a {% block content %}...{% endblock %} in this file.
+#}

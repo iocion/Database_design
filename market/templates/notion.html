@@ -1,400 +1,222 @@
-
 {% extends 'base.html' %}
 
 {% block title %}
-    Notion Page
-{% endblock %} 
+    药品详情与评论
+{% endblock %}
 
 {% block content%}
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>药品进销存管理系统 - 主页</title>
+{#
+    移除 <!DOCTYPE html>, <html>, <head>, <body> 标签，
+    这些由 base.html 提供。
+    只保留需要插入到 base.html 的 content 块中的内容。
+#}
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+{# 引入评论区和物品详情所需的样式 #}
+<style>
+    /* Custom styles for the comment section and item details */
+    .comment-container {
+        max-width: 800px; /* 限制最大宽度 */
+        margin: 20px auto; /* 居中显示 */
+        background-color: #ffffff; /* 白色背景 */
+        border-radius: 8px; /* 圆角 */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 阴影 */
+        padding: 20px;
+    }
+    .comment-form {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #e2e8f0; /* 顶部边框 */
+    }
+    .comment {
+        border-bottom: 1px solid #e2e8f0; /* 评论之间的分隔线 */
+        padding: 15px 0;
+    }
+    .comment:last-child {
+        border-bottom: none; /* 最后一个评论没有底边框 */
+    }
+    .comment-author {
+        font-weight: 600; /* 作者名加粗 */
+        color: #333;
+    }
+    .comment-text {
+        margin-top: 5px;
+        color: #555;
+        line-height: 1.6; /* 行高 */
+    }
+    .comment-meta {
+        font-size: 0.8em; /* 元信息字体大小 */
+        color: #999;
+        margin-top: 5px;
+    }
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    /* 新增的 item 样式 */
+    .item-details {
+        margin-bottom: 20px;
+        padding: 15px;
+        background-color: #e9eef2; /* 浅蓝色背景 */
+        border-radius: 8px;
+        border: 1px solid #cce0eb;
+    }
+    .item-title {
+        font-size: 1.5em;
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #2a4365; /* 深蓝色 */
+    }
+    .item-info {
+        margin-bottom: 5px;
+        color: #4a5568; /* 灰色 */
+    }
+    .item-description {
+        font-style: italic;
+        color: #2b6cb0; /* 蓝色 */
+        margin-top: 10px;
+    }
+</style>
 
-    <style>
-        body {
-            font-family: 'Microsoft YaHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa; /* 淡灰色背景 */
-        }
+<div class="comment-container">
+    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">评论区</h2>
 
-        .sidebar {
-            position: fixed;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            z-index: 100; /* Behind the navbar */
-            padding: 48px 0 0; /* Height of navbar */
-            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
-            background-color: #343a40; /* 深色侧边栏 */
-            color: #adb5bd;
-        }
+    <div class="item-details">
+        <div class="item-title">物品详情</div>
+        <div class="item-info">名称: {{ item.name }}</div>
+        <div class="item-info">价格: {{ item.price }}</div>
+        <div class="item-info">条形码: {{ item.barcode }}</div>
+        <div class="item-info">数量: {{ item.quantity }}</div>
+        <div class="item-description">描述: {{ item.description }}</div>
+        </div>
 
-        .sidebar-sticky {
-            position: relative;
-            top: 0;
-            height: calc(100vh - 48px);
-            padding-top: .5rem;
-            overflow-x: hidden;
-            overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
-        }
+    <div id="comments-list">
+        <div class="comment">
+            <div class="comment-author">新增评论区</div>
+            <div class="comment-text">可以提供缺失的药物，然后后台进货 哈哈哈。</div>
+            <div class="comment-meta">2025-5-13 10:00</div>
+        </div>
+        <div class="comment">
+            <div class="comment-author">有一个坏消息</div>
+            <div class="comment-text">暂时还不能评论</div>
+            <div class="comment-meta">2025-5-13 10:05</div>
+        </div>
+        </div>
 
-        .sidebar .nav-link {
-            font-weight: 500;
-            color: #adb5bd; /* 链接文字颜色 */
-            padding: 10px 20px;
-        }
-
-        .sidebar .nav-link .fa-fw { /* Font Awesome fixed width icons */
-            width: 1.25em;
-            margin-right: 8px;
-        }
-
-        .sidebar .nav-link:hover {
-            color: #fff; /* 鼠标悬停时文字变白 */
-            background-color: #495057;
-        }
-
-        .sidebar .nav-link.active {
-            color: #fff;
-            background-color: #0d6efd; /* 激活链接的背景色 */
-        }
-
-        .navbar-brand {
-            padding-top: .75rem;
-            padding-bottom: .75rem;
-            font-size: 1.2rem;
-            background-color: rgba(0, 0, 0, .25);
-            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .25);
-            color: #fff;
-        }
-
-        .navbar .form-control {
-            padding: .75rem 1rem;
-            border-width: 0;
-            border-radius: 0;
-        }
-
-        .main-content {
-            margin-left: 220px; /* Default sidebar width */
-            padding: 20px;
-            transition: margin-left .3s;
-        }
-
-        /* For mobile: sidebar is off-canvas */
-        @media (max-width: 767.98px) {
-            .sidebar {
-                left: -220px; /* Hide sidebar by default */
-                transition: left 0.3s ease-in-out;
-            }
-            .sidebar.show {
-                left: 0; /* Show sidebar */
-            }
-            .main-content {
-                margin-left: 0;
-            }
-            .navbar-toggler { /* Ensure toggler is visible */
-                display: block !important;
-            }
-        }
-        /* Adjust main content when sidebar is toggled on desktop if it were a toggleable one */
-        /* This example uses a fixed sidebar on desktop and off-canvas on mobile */
-
-        .card-icon {
-            font-size: 2.5rem;
-            opacity: 0.6;
-        }
-        .quick-action-btn {
-            padding: 15px 20px;
-            font-size: 1.1rem;
-            margin: 5px;
-        }
-        .list-group-item span.badge {
-            font-size: 0.9rem;
-        }
-    </style>
-</head>
-<body>
-
-    <header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
-        <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#"><i class="fas fa-pills fa-fw"></i> 药品进销存系统</a>
-        <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="navbar-nav">
-            <div class="nav-item text-nowrap d-none d-md-block">
-                 <span class="nav-link px-3 text-white">欢迎, 管理员</span>
+    <div class="comment-form">
+        <h3 class="text-xl font-semibold mb-4 text-gray-700">发表评论</h3>
+        <form id="new-comment-form">
+            <div class="mb-4">
+                <label for="comment-text" class="block text-gray-700 text-sm font-bold mb-2">您的评论:</label>
+                <textarea id="comment-text" name="comment_text" rows="4" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:ring-2 focus:ring-blue-500" required></textarea>
             </div>
-        </div>
-        <div class="navbar-nav">
-            <div class="nav-item text-nowrap">
-                <a class="nav-link px-3" href="#"><i class="fas fa-sign-out-alt fa-fw"></i> 退出</a>
+            <div class="flex items-center justify-between">
+                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline focus:ring-2 focus:ring-blue-500">
+                    发表评论
+                </button>
             </div>
-        </div>
-    </header>
-
-    <div class="container-fluid">
-        <div class="row">
-            <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block sidebar collapse">
-                <div class="sidebar-sticky pt-3">
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="#">
-                                <i class="fas fa-tachometer-alt fa-fw"></i> 主页概览
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="fas fa-capsules fa-fw"></i> 药品管理
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="fas fa-cart-plus fa-fw"></i> 销售开单
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="fas fa-truck-loading fa-fw"></i> 采购入库
-                            </a>
-                        </li>
-                         <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="fas fa-boxes fa-fw"></i> 库存盘点
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="fas fa-exclamation-triangle fa-fw"></i> 库存预警
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="fas fa-chart-line fa-fw"></i> 统计报表
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="fas fa-users-cog fa-fw"></i> 供应商管理
-                            </a>
-                        </li>
-                         <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="fas fa-user-friends fa-fw"></i> 客户管理
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="fas fa-cog fa-fw"></i> 系统设置
-                            </a>
-                        </li>
-                    </ul>
-                    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-                        <span>帮助中心</span>
-                    </h6>
-                    <ul class="nav flex-column mb-2">
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">
-                                <i class="fas fa-question-circle fa-fw"></i> 操作指南
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
-
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
-                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                    <h1 class="h2">主页概览</h1>
-                    <div class="btn-toolbar mb-2 mb-md-0">
-                        <div class="btn-group me-2">
-                            <button type="button" class="btn btn-sm btn-outline-secondary">分享</button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary">导出</button>
-                        </div>
-                        <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
-                            <i class="fas fa-calendar-alt"></i>
-                            时间范围
-                        </button>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-xl-3 col-md-6 mb-4">
-                        <div class="card border-left-primary shadow h-100 py-2">
-                            <div class="card-body">
-                                <div class="row no-gutters align-items-center">
-                                    <div class="col mr-2">
-                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">今日销售额</div>
-                                        <div class="h5 mb-0 font-weight-bold text-gray-800">¥ <span id="todaySales">1,280.00</span></div>
-                                    </div>
-                                    <div class="col-auto card-icon">
-                                        <i class="fas fa-dollar-sign text-primary"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-md-6 mb-4">
-                        <div class="card border-left-success shadow h-100 py-2">
-                            <div class="card-body">
-                                <div class="row no-gutters align-items-center">
-                                    <div class="col mr-2">
-                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">当前库存品种</div>
-                                        <div class="h5 mb-0 font-weight-bold text-gray-800"><span id="stockVariety">350</span> 种</div>
-                                    </div>
-                                    <div class="col-auto card-icon">
-                                        <i class="fas fa-pills text-success"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-md-6 mb-4">
-                        <div class="card border-left-warning shadow h-100 py-2">
-                            <div class="card-body">
-                                <div class="row no-gutters align-items-center">
-                                    <div class="col mr-2">
-                                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">缺货药品</div>
-                                        <div class="h5 mb-0 font-weight-bold text-gray-800"><span id="lowStockCount">12</span> 种</div>
-                                    </div>
-                                    <div class="col-auto card-icon">
-                                        <i class="fas fa-exclamation-circle text-warning"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-md-6 mb-4">
-                        <div class="card border-left-danger shadow h-100 py-2">
-                            <div class="card-body">
-                                <div class="row no-gutters align-items-center">
-                                    <div class="col mr-2">
-                                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">临期药品 (30天内)</div>
-                                        <div class="h5 mb-0 font-weight-bold text-gray-800"><span id="expiringSoonCount">5</span> 种</div>
-                                    </div>
-                                    <div class="col-auto card-icon">
-                                        <i class="fas fa-calendar-times text-danger"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row my-4">
-                    <div class="col-12">
-                        <h3 class="h4">快捷操作</h3>
-                    </div>
-                    <div class="col-lg-3 col-md-6 mb-3">
-                        <button type="button" class="btn btn-primary w-100 quick-action-btn">
-                            <i class="fas fa-cart-plus fa-fw"></i> 快速销售开单
-                        </button>
-                    </div>
-                    <div class="col-lg-3 col-md-6 mb-3">
-                        <button type="button" class="btn btn-success w-100 quick-action-btn">
-                            <i class="fas fa-plus-circle fa-fw"></i> 新增药品入库
-                        </button>
-                    </div>
-                    <div class="col-lg-3 col-md-6 mb-3">
-                        <button type="button" class="btn btn-info w-100 quick-action-btn">
-                            <i class="fas fa-search fa-fw"></i> 查询药品库存
-                        </button>
-                    </div>
-                    <div class="col-lg-3 col-md-6 mb-3">
-                        <button type="button" class="btn btn-secondary w-100 quick-action-btn">
-                            <i class="fas fa-file-alt fa-fw"></i> 查看销售记录
-                        </button>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-lg-7 mb-4">
-                        <div class="card shadow">
-                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                <h6 class="m-0 font-weight-bold text-primary">近期销售订单</h6>
-                                <a href="#" class="small">查看全部 &rarr;</a>
-                            </div>
-                            <div class="card-body">
-                                <ul class="list-group list-group-flush">
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <span>订单 #20250513001 - 阿莫西林胶囊 x2</span>
-                                        <span class="badge bg-success rounded-pill">已完成</span>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <span>订单 #20250513002 - 布洛芬缓释片 x1</span>
-                                        <span class="badge bg-success rounded-pill">已完成</span>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <span>订单 #20250512015 - 维生素C泡腾片 x5</span>
-                                        <span class="badge bg-warning text-dark rounded-pill">待付款</span>
-                                    </li>
-                                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <span>订单 #20250512014 - 碘伏消毒液 x3</span>
-                                        <span class="badge bg-success rounded-pill">已完成</span>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-5 mb-4">
-                        <div class="card shadow">
-                             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                <h6 class="m-0 font-weight-bold text-danger">重要通知/预警</h6>
-                                <a href="#" class="small">处理全部 &rarr;</a>
-                            </div>
-                            <div class="card-body">
-                                <div class="alert alert-warning d-flex align-items-center" role="alert">
-                                    <i class="fas fa-exclamation-triangle me-2"></i>
-                                    <div>
-                                        <strong>库存不足:</strong> "蒙脱石散" 当前库存仅剩 <strong>3</strong> 盒。
-                                    </div>
-                                </div>
-                                <div class="alert alert-danger d-flex align-items-center" role="alert">
-                                     <i class="fas fa-calendar-times me-2"></i>
-                                    <div>
-                                        <strong>药品临期:</strong> "儿童止咳糖浆 (批号: XG2308)" 将于 <strong>2025-06-10</strong> 过期。
-                                    </div>
-                                </div>
-                                 <div class="alert alert-info d-flex align-items-center" role="alert">
-                                     <i class="fas fa-info-circle me-2"></i>
-                                    <div>
-                                        <strong>采购到货:</strong> 采购单 "PO2025051001" (供应商: 国药控股) 已部分到货。
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </main>
-        </div>
+        </form>
     </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+{# 评论相关的 JavaScript #}
+<script>
+    // 获取表单元素
+    const newCommentForm = document.getElementById('new-comment-form');
 
-    <script>
-        // JavaScript for sidebar toggle on mobile
-        // Bootstrap 5 handles this automatically with data-bs-toggle="collapse"
-        // But if you need more control or if the sidebar is not part of the navbar collapse:
-        // const sidebar = document.getElementById('sidebarMenu');
-        // const navbarToggler = document.querySelector('.navbar-toggler');
-        // if (navbarToggler) {
-        //     navbarToggler.addEventListener('click', function () {
-        //         sidebar.classList.toggle('show');
-        //     });
-        // }
+    // 监听表单提交事件
+    newCommentForm.addEventListener('submit', function(event) {
+        event.preventDefault(); // 阻止表单默认提交行为
 
-        // Example: Update dashboard data (in a real app, this would come from a server)
-        // document.getElementById('todaySales').textContent = '1,520.50';
-        // document.getElementById('stockVariety').textContent = '352';
-        // document.getElementById('lowStockCount').textContent = '10';
-        // document.getElementById('expiringSoonCount').textContent = '7';
-    </script>
-</body>
-</html>
+        // 获取评论文本
+        const commentText = document.getElementById('comment-text').value;
+
+        // 简单的验证
+        if (commentText.trim() === '') {
+            alert('评论内容不能为空！'); // 使用 alert 提示，实际应用中应使用更友好的方式
+            return;
+        }
+
+        // 准备要发送的数据
+        const postData = {
+            comment_text: commentText
+            // 注意：用户ID通常由后端根据当前登录用户会话获取，
+            // 不应直接从前端发送以防篡改。
+        };
+
+        // 假设后端有一个 /api/comments 接口接收 POST 请求
+        fetch('/api/comments', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                // 如果需要认证，可能还需要添加认证头，例如:
+                // 'Authorization': 'Bearer YOUR_TOKEN'
+            },
+            body: JSON.stringify(postData) // 将数据转换为 JSON 字符串
+        })
+        .then(response => {
+            // 检查响应状态码
+            if (!response.ok) {
+                // 如果响应不是 2xx，抛出错误
+                return response.json().then(errorData => {
+                    throw new Error(errorData.message || '发表评论失败');
+                });
+            }
+            // 解析 JSON 响应
+            return response.json();
+        })
+        .then(data => {
+            // 评论发表成功后的处理
+            console.log('评论发表成功:', data);
+            alert('评论发表成功！'); // 提示用户成功
+
+            // 清空文本框
+            document.getElementById('comment-text').value = '';
+
+            // 可选：如果后端返回了新评论的数据，可以将其添加到页面上
+            // appendCommentToPage(data); // 需要实现这个函数
+
+        })
+        .catch(error => {
+            // 处理错误
+            console.error('发表评论时出错:', error);
+            alert('发表评论失败: ' + error.message); // 提示用户失败原因
+        });
+    });
+
+    // 示例函数：将新评论添加到页面（如果后端返回了评论数据）
+    /*
+    function appendCommentToPage(commentData) {
+        const commentsList = document.getElementById('comments-list');
+        const newCommentDiv = document.createElement('div');
+        newCommentDiv.classList.add('comment'); // 添加样式类
+
+        // 根据 commentData 的结构创建评论元素的 HTML
+        newCommentDiv.innerHTML = `
+            <div class="comment-author">${commentData.author_name || '未知用户'}</div>
+            <div class="comment-text">${commentData.comment_text}</div>
+            <div class="comment-meta">${new Date(commentData.created_at).toLocaleString()}</div>
+        `;
+
+        // 将新评论添加到列表的顶部或底部，取决于您的需求
+        commentsList.prepend(newCommentDiv); // 添加到顶部
+        // commentsList.appendChild(newCommentDiv); // 添加到底部
+    }
+    */
+
+    // 可选：页面加载时从后端获取现有评论并显示
+    /*
+    window.addEventListener('load', function() {
+        fetch('/api/comments') // 假设后端有一个 /api/comments 接口返回所有评论
+            .then(response => response.json())
+            .then(comments => {
+                const commentsList = document.getElementById('comments-list');
+                commentsList.innerHTML = ''; // 清空现有示例评论
+                comments.forEach(comment => {
+                    appendCommentToPage(comment); // 使用上面定义的函数添加评论
+                });
+            })
+            .catch(error => {
+                console.error('获取评论时出错:', error);
+            });
+    });
+    */
+</script>
 
 {% endblock %}

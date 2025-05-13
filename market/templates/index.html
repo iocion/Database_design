@@ -1,32 +1,54 @@
 {% extends 'base.html' %}
+
 {% block title %}
-    Ask Page
+    AI病症预测
 {% endblock %}
+
 {% block content%}
-<body>    
-<head>
-    <meta charset="UTF-8">
-    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
-    <title>AI病症预测</title>
-</head>
-<body>
-    <div class="container">
-        <h3>医疗以及药物建议</h3>
-        <form method="POST" action="/">
-            <label for="condition">请输入你的症状:</label><br>
-            <input type="text" id="condition" name="condition" placeholder="例如:我感觉有些头痛" required><br>
-            <h6>本内容由AI生成，仅供参考</h6>
-            <button type="submit">获取建议</button>
+{#
+  Refactoring the Ask Page content to use Tailwind CSS classes
+  Matching the theme of the base_template_tailwind
+#}
+
+{# Removed the redundant <body> and <head> tags as they are provided by base.html #}
+
+<div class="container mx-auto px-4 py-8"> {# Container for centering and padding #}
+    <div class="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-md"> {# Card-like container for the form and results #}
+        <h3 class="text-2xl font-bold mb-6 text-center text-gray-800">医疗以及药物建议</h3> {# Heading style #}
+
+        <form method="POST" action="/" class="space-y-4"> {# Form with vertical spacing #}
+            <div class="form-group"> {# Keeping form-group for structure #}
+                <label for="condition" class="block text-sm font-medium text-gray-700 mb-1">请输入你的症状:</label> {# Label style #}
+                {# Input field style #}
+                <input type="text" id="condition" name="condition" placeholder="例如:我感觉有些头痛" required
+                       class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+            </div>
+
+            <h6 class="text-sm text-gray-600 text-center">本内容由AI生成，仅供参考</h6> {# Disclaimer text style #}
+
+            {# Submit button style #}
+            <button type="submit"
+                    class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                获取建议
+            </button>
         </form>
+
+        {# Display error message #}
         {% if error %}
-            <p class="error">{{ error }}</p>
+            <p class="mt-4 text-red-600 text-center">{{ error }}</p> {# Error message style #}
         {% endif %}
+
+        {# Display results #}
         {% if condition and advice %}
-            <h5>结果</h5>
-            <p><span class="condition">病症:</span> {{ condition }}</p>
-            <div class="advice">{{ advice|safe }}</div>
+            <div class="mt-6 pt-4 border-t border-gray-200"> {# Separator and spacing for results #}
+                <h5 class="text-xl font-semibold mb-3 text-gray-800">结果</h5> {# Results heading style #}
+                <p class="text-gray-700 mb-2"><span class="font-semibold">病症:</span> {{ condition }}</p> {# Condition display style #}
+                <div class="advice text-gray-700 leading-relaxed"> {# Advice display style #}
+                    {{ advice|safe }}
+                </div>
+            </div>
         {% endif %}
     </div>
-</body>
-</body>
+</div>
+
 {% endblock %}

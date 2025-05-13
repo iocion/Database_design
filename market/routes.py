@@ -19,18 +19,9 @@ client = OpenAI(
     api_key="525c607104d8891a998419b0d2ad22e0f2f26a7f",
     base_url="https://api-xa0fv6o8a9m1q9hd.aistudio-app.com/v1"
 )
-def user_to_dict(user):
-    return {
-        'id': user.id,
-        'username': user.username,
-        'email_address': user.email_address,
-        'budget': user.budget
-    }
 
-def get_users_json_external():
-    users = User.query.all()
-    users_list = [user_to_dict(user) for user in users]  # 转化成列表形式
-    return jsonify(users_list)
+
+
     
 
 @app.route("/", methods=["GET", "POST"])
@@ -68,8 +59,7 @@ def index_page():
                 advice = re.sub(r"<think>.*?</think>", "", advice, flags=re.DOTALL)
 
                 advice = markdown.markdown(advice)  # Convert Markdown to HTML
-                print(get_users_json_external())
-                print(advice)
+                # print(advice) 测试
             except Exception as e:
                 error = f"{str(e)}"
 
@@ -182,7 +172,7 @@ def login_page():
 @login_required
 def logout_page(): 
     logout_user()
-    flash("已经退出登出", category="info")
+    flash("已经成功退出登录", category="info")
     return redirect(url_for('index_page'))
 
 
