@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    仓库
+{% endblock %}
+
+{% block content %} 
+ 
+ {# Owned Items Section (approx. 1/3 width on medium and large screens) #}
+        <div class="w-full md:w-1/3 px-4 mb-8"> {# Full width on small, 1/3 on medium/large, padding, margin-bottom #}
+            <h5 class="text-xl font-semibold mb-3 text-gray-800">已拥有商品</h5> {# Heading style #}
+            <p class="text-gray-600 mb-4">点击卡片上的“出售”按钮将商品重新上架。</p> {# Text style #}
+
+            {# Grid for owned items #}
+            <div class="grid grid-cols-1 gap-4"> {# Single column grid with gap #}
+                {% if owned_items %}
+                {% for owned_item in owned_items %}
+                <div class="col"> {# Keeping col for structure #}
+                    <div class="bg-gray-100 rounded-lg shadow-sm p-4 text-center"> {# Card style, lighter background #}
+                        <h7 class="text-lg font-semibold mb-2 text-gray-800">{{ owned_item.name }}</h7> {# Card title #}
+                        <p class="text-gray-700 text-sm mb-2">描述: {{ owned_item.description }}</p> {# Description #}
+                        <p class="text-gray-700 text-sm font-bold mb-4">售价: {{ owned_item.price }} 元</p> {# Price #}
+                        {# Sell Button (styled with Tailwind danger) #}
+                        <button type="button" class="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded focus:outline-none focus:shadow-outline text-sm"
+                                data-bs-toggle="modal" data-bs-target="#Modal-SellingConfirm-{{ owned_item.id }}">
+                            出售
+                        </button>
+                    </div>
+                </div>
+                {# Include the modal template INSIDE the loop for 'owned_item' to be defined #}
+                
+                {% endfor %}
+                {% else %}
+                <div class="col"> 
+                    <div class="bg-gray-100 rounded-lg shadow-sm p-4 text-center"> {# Card style #}
+                        <h5 class="text-lg font-semibold mb-2 text-gray-800">暂无商品</h5> {# Heading #}
+                        <p class="text-gray-600 text-sm">您尚未拥有任何可以出售的商品。</p> {# Text #}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+
+</div>
+{% endblock %}

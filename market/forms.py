@@ -14,7 +14,6 @@ class RegisterForm(FlaskForm):
             email_address= User.query.filter_by(email_address=email_address_to_check.data).first()
             if email_address:
                 raise ValidationError('该用户的邮箱已经存在')
-
     username = StringField(label='User name:',validators=[Length(min=2,max=30),DataRequired()])
     email_address = StringField(label='Email Address:',validators=[Email(),DataRequired()])
     password1 = PasswordField(label='password:',validators=[Length(min=6),DataRequired()])
@@ -28,7 +27,7 @@ class RegisterForm(FlaskForm):
 
         
 class LoginForm(FlaskForm):
-    username = StringField(label='User Name',validators=[DataRequired()])
+    username = StringField(label='User Name:',validators=[DataRequired()])
     password = StringField(label='Password:',validators=[DataRequired()])
     submit = SubmitField(label='Sign in')
 

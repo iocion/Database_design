@@ -66,7 +66,12 @@ def index_page():
     return render_template("index.html", condition=condition, advice=advice, error=error)
 
 
-
+@app.route('/storage',methods=['GET','POST'])
+@login_required
+def storage_page():
+        items = Item.query.filter_by(owner=None)
+        owned_items = Item.query.filter_by(owner=current_user.id)
+        return render_template('storage.html',items=items,owned_items=owned_items)
 
 @app.route('/market',methods=['GET','POST'])
 @login_required
@@ -125,16 +130,19 @@ def register_page():
             return redirect(url_for('index_page'))
         except IntegrityError:
             db.session.rollback()
-            flash("这个邮箱已经存在了", category="danger")
+            flash("邮箱已存在", category="danger")
 
     # 处理表单验证错误（无论是否提交成功）
     if form.errors:
         for field_name, err_msgs in form.errors.items():
             for err_msg in err_msgs:
-                if 'Username already exists' in err_msg:
+                print(f"Field: {field_name}, Error: {err_msg}")
+                if 'Username already exists' in err_msg and 'Field must be equal to' not in err_msg:
                     flash("用户名已经存在!", category="danger")
-                elif 'Field must be equal to' in err_msg:
+                elif 'Field must be equal to' in err_msg and 'Username already exists' not in err_msg:
                     flash("两次密码输入不相同!", category="danger")
+                elif 'Username already exists' in err_msg and 'Field must be equal to'  in err_msg:
+                    flash("用户名已经存在,两次密码输入不相同!", category="danger")
                 else:
                     flash(f"{err_msg}", category="danger")
 
@@ -177,13 +185,13 @@ def game_page():
 
 
 @app.route("/user_table")
-# def just_for_fun_page():
-#      return render_template("just_for_fun.html")
 @login_required
 def just_for_fun_page():
     # 使用 SQLAlchemy Query API 查询所有用户
     users = User.query.all()
     return render_template('just_for_fun.html', users=users)
+
+
 
 
 
