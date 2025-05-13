@@ -15,6 +15,8 @@ login_manager = LoginManager(app)
 login_manager.init_app(app)
 login_manager.login_view = 'login_page'
 login_manager.login_message_category = "info"
+
+login_manager.login_message = "请先登录才能访问此页面！"
 # Getter and Setter methods
 from market import routes
 

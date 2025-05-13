@@ -7,7 +7,7 @@ from datetime import datetime
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-
+# 用户表
 class User(db.Model,UserMixin):
     id = db.Column(db.Integer(),primary_key=True)
     username =db.Column(db.String(length=30),nullable=False,unique=True)
@@ -21,8 +21,10 @@ class User(db.Model,UserMixin):
 
     @property
     def prettier_budget(self):
-        if len(str(self.budget))>=4: #超过三位，中间显示" , "
-            return f'{str(self.budget)[:-3]},{str(self.budget)[-3:]}元' 
+        if len(str(self.budget))>=4 and len(str(self.budget)) < 7 : #超过三位，中间显示" , "
+            return f'{str(self.budget)[:-3]},{str(self.budget)[-3:]}元'
+        elif len(str(self.budget))>=7: #超过6位，中间显示" , "
+            return f'{str(self.budget)[:-6]},{str(self.budget)[-6:-3]},{str(self.budget)[-3:]}元' 
         else:
             return f"{self.budget}元"
         
@@ -45,14 +47,16 @@ class User(db.Model,UserMixin):
 
     def can_sell(self,item_obj):
         return item_obj in self.items
-    
+
+# 药品表    
 class Item(db.Model):
     id = db.Column(db.Integer(),primary_key=True)
     name = db.Column(db.String(length=30),nullable=False,unique=True)
     price =db.Column(db.Integer(),nullable=False)
     barcode =db.Column(db.String(length=12),nullable=False,unique=False)
     description =db.Column(db.String(length=1024),nullable=False,unique=False)
-    owner = db.Column(db.Integer(),db.ForeignKey('user.id'))
+    quantity =db.Column(db.Integer(),nullable=False,default=100)
+    owner = db.Column(db.Integer(),db.ForeignKey('user.id')) # 外键连接用户id
     # created_at = db.Column(db.DateTime, default=datetime.now)
     # def time_now(self):
     #     return datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -62,7 +66,7 @@ class Item(db.Model):
 
 
     def __repr__(self):
-        return f"Item {self.name}"
+        return f"药品名称:{self.name}"
     
 
     def buy(self,user):
