@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from market import app
 from flask import render_template,redirect,url_for,flash,get_flashed_messages, request,jsonify
-from market.models import Item,User
+from market.models import Item,User,Comment
 from market.forms import RegisterForm,LoginForm,PurchaseItemForm,SellItemForm
 from sqlalchemy.exc import IntegrityError
 from market import db
@@ -109,11 +109,6 @@ def market_page():
 
 
 
-@app.route('/notion')
-def notion_page():
-    # 使用 SQLAlchemy Query API 查询所有用户
-    item = Item.query.filter_by(name='阿莫西林').first()
-    return render_template('notion.html',item=item)
 
 @app.route('/register',methods=['GET','POST'])
 def register_page():
@@ -181,7 +176,7 @@ def game_page():
      return render_template("game.html")
 
 
-@app.route("/just_for_fun")
+@app.route("/user_table")
 # def just_for_fun_page():
 #      return render_template("just_for_fun.html")
 @login_required
@@ -190,3 +185,54 @@ def just_for_fun_page():
     users = User.query.all()
     return render_template('just_for_fun.html', users=users)
 
+
+
+@app.route('/notion',methods=['GET','POST'])
+def notion_page():
+    # 使用 SQLAlchemy Query API 查询所有用户
+    # items = Item.query.all()
+    items = Item.query.filter_by(name="蒙脱石散").first()
+    comment = Comment.query.filter_by(item_id=items.id).order_by(Comment.created_at.desc()).all()
+    return render_template('notion.html',item=items,comments=comment)
+
+@app.route('/item/<int:item_id>')  # 定义货物的view视图
+def view_item(item_id):
+    item = Item.query.get_or_404(item_id)
+    comments = Comment.query.filter_by(item_id=item_id).order_by(Comment.created_at.desc()).all()
+    return render_template('item_details.html', item=item, comments=comments)
+
+# 增加评论系统
+@app.route('/api/comments', methods=['POST'])
+@login_required
+def post_comment():
+    data = request.get_json()
+    comment_text = data.get('comment_text')
+    item_id = 9
+
+    if not comment_text:
+        return jsonify({'message': '评论内容不能为空'}), 400
+    if not item_id:
+        return jsonify({'message': '物品ID不能为空'}), 400
+
+    try:
+        item_id = int(item_id) # 尝试将 item_id 转换为整数
+        item = Item.query.get(item_id)
+        if not item:
+            return jsonify({'message': '指定的物品不存在'}), 404
+    except ValueError:
+        return jsonify({'message': '物品ID格式不正确'}), 400
+
+    new_comment = Comment(
+        comment_text=comment_text,
+        user_id=current_user.id,
+        item_id=item_id
+    )
+    db.session.add(new_comment)
+    db.session.commit()
+
+    return jsonify({
+        'id': new_comment.id,
+        'author_name': current_user.username,
+        'comment_text': new_comment.comment_text,
+        'created_at': new_comment.created_at.isoformat()
+    }), 201

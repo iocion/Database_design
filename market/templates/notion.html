@@ -5,13 +5,6 @@
 {% endblock %}
 
 {% block content%}
-{#
-    移除 <!DOCTYPE html>, <html>, <head>, <body> 标签，
-    这些由 base.html 提供。
-    只保留需要插入到 base.html 的 content 块中的内容。
-#}
-
-{# 引入评论区和物品详情所需的样式 #}
 <style>
     /* Custom styles for the comment section and item details */
     .comment-container {
@@ -76,28 +69,31 @@
 
 <div class="comment-container">
     <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">评论区</h2>
-
     <div class="item-details">
+        <div class="item-details" data-item-id="{{ item.id }}">
         <div class="item-title">物品详情</div>
+        <div class="item-info">序号: {{ item.id }}</div>
         <div class="item-info">名称: {{ item.name }}</div>
         <div class="item-info">价格: {{ item.price }}</div>
         <div class="item-info">条形码: {{ item.barcode }}</div>
         <div class="item-info">数量: {{ item.quantity }}</div>
         <div class="item-description">描述: {{ item.description }}</div>
-        </div>
-
+    </div>
     <div id="comments-list">
-        <div class="comment">
-            <div class="comment-author">新增评论区</div>
-            <div class="comment-text">可以提供缺失的药物，然后后台进货 哈哈哈。</div>
-            <div class="comment-meta">2025-5-13 10:00</div>
-        </div>
-        <div class="comment">
-            <div class="comment-author">有一个坏消息</div>
-            <div class="comment-text">暂时还不能评论</div>
-            <div class="comment-meta">2025-5-13 10:05</div>
-        </div>
-        </div>
+        {% if comments %}
+            {% for comment in comments %}
+            <div class="comment">
+                <div class="comment-author">{{ comment.author.username }}</div>
+                <div class="comment-text">{{ comment.comment_text }}</div>
+                <div class="comment-meta">{{ comment.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+            </div>
+            {% else %}
+            <div class="comment">
+                <div class="comment-text">暂无评论。</div>
+            </div>
+            {% endfor %}
+        {% endif %}
+    </div>
 
     <div class="comment-form">
         <h3 class="text-xl font-semibold mb-4 text-gray-700">发表评论</h3>
@@ -115,108 +111,88 @@
     </div>
 </div>
 
-{# 评论相关的 JavaScript #}
 <script>
-    // 获取表单元素
+    // const newCommentForm = document.getElementById('new-comment-form');
+    // const commentsList = document.getElementById('comments-list');
+    // const itemId = window.location.pathname.split('/').pop(); // 从 URL 获取物品 ID
     const newCommentForm = document.getElementById('new-comment-form');
+    const commentsList = document.getElementById('comments-list');
+    // const itemDetails = document.querySelector('.item-details');
+    // let itemId;
+    const itemId = 9;
 
-    // 监听表单提交事件
     newCommentForm.addEventListener('submit', function(event) {
-        event.preventDefault(); // 阻止表单默认提交行为
-
-        // 获取评论文本
+        event.preventDefault();
         const commentText = document.getElementById('comment-text').value;
 
-        // 简单的验证
         if (commentText.trim() === '') {
-            alert('评论内容不能为空！'); // 使用 alert 提示，实际应用中应使用更友好的方式
+            alert('评论内容不能为空！');
             return;
         }
 
-        // 准备要发送的数据
         const postData = {
-            comment_text: commentText
-            // 注意：用户ID通常由后端根据当前登录用户会话获取，
-            // 不应直接从前端发送以防篡改。
+            comment_text: commentText,
+            item_id: itemId // 发送当前物品的 ID
         };
 
-        // 假设后端有一个 /api/comments 接口接收 POST 请求
         fetch('/api/comments', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                // 如果需要认证，可能还需要添加认证头，例如:
-                // 'Authorization': 'Bearer YOUR_TOKEN'
             },
-            body: JSON.stringify(postData) // 将数据转换为 JSON 字符串
+            body: JSON.stringify(postData)
         })
         .then(response => {
-            // 检查响应状态码
             if (!response.ok) {
-                // 如果响应不是 2xx，抛出错误
                 return response.json().then(errorData => {
                     throw new Error(errorData.message || '发表评论失败');
                 });
             }
-            // 解析 JSON 响应
             return response.json();
         })
         .then(data => {
-            // 评论发表成功后的处理
-            console.log('评论发表成功:', data);
-            alert('评论发表成功！'); // 提示用户成功
-
-            // 清空文本框
             document.getElementById('comment-text').value = '';
-
-            // 可选：如果后端返回了新评论的数据，可以将其添加到页面上
-            // appendCommentToPage(data); // 需要实现这个函数
-
+            appendCommentToPage(data); // 将新评论添加到页面
         })
         .catch(error => {
-            // 处理错误
             console.error('发表评论时出错:', error);
-            alert('发表评论失败: ' + error.message); // 提示用户失败原因
+            alert('发表评论失败: ' + error.message);
         });
     });
 
-    // 示例函数：将新评论添加到页面（如果后端返回了评论数据）
-    /*
     function appendCommentToPage(commentData) {
-        const commentsList = document.getElementById('comments-list');
         const newCommentDiv = document.createElement('div');
-        newCommentDiv.classList.add('comment'); // 添加样式类
-
-        // 根据 commentData 的结构创建评论元素的 HTML
+        newCommentDiv.classList.add('comment');
         newCommentDiv.innerHTML = `
-            <div class="comment-author">${commentData.author_name || '未知用户'}</div>
+            <div class="comment-author">${commentData.author_name}</div>
             <div class="comment-text">${commentData.comment_text}</div>
             <div class="comment-meta">${new Date(commentData.created_at).toLocaleString()}</div>
         `;
-
-        // 将新评论添加到列表的顶部或底部，取决于您的需求
-        commentsList.prepend(newCommentDiv); // 添加到顶部
-        // commentsList.appendChild(newCommentDiv); // 添加到底部
+        commentsList.prepend(newCommentDiv); // 添加到评论列表的顶部
     }
-    */
 
-    // 可选：页面加载时从后端获取现有评论并显示
-    /*
+    // 页面加载时获取现有评论
     window.addEventListener('load', function() {
-        fetch('/api/comments') // 假设后端有一个 /api/comments 接口返回所有评论
+        fetch(`/api/comments/${itemId}`)
             .then(response => response.json())
             .then(comments => {
-                const commentsList = document.getElementById('comments-list');
-                commentsList.innerHTML = ''; // 清空现有示例评论
+                commentsList.innerHTML = ''; // 清空初始的示例评论
                 comments.forEach(comment => {
-                    appendCommentToPage(comment); // 使用上面定义的函数添加评论
+                    appendCommentToPage(comment);
                 });
             })
             .catch(error => {
                 console.error('获取评论时出错:', error);
             });
     });
-    */
 </script>
 
+{% endblock %}
+
+{% block footer %}
+    <footer class="bg-gray-800 text-white py-4">
+        <div class="container mx-auto text-center">
+            <p>copyright; 2025年数据库课程设计.</p>
+        </div>
+    </footer>
 {% endblock %}

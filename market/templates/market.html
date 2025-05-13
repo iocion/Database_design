@@ -24,7 +24,7 @@
             <div class="form-group"> {# Keeping form-group for structure #}
                 <label for="condition" class="block text-sm font-medium text-gray-700 mb-1">请输入药品名称或症状:</label> {# Label style #}
                 {# Input field style #}
-                <input type="text" id="condition" name="condition" placeholder="例如: 阿莫西林 或 头痛" required
+                <input type="text" id="condition" name="condition" placeholder="例如: 阿莫西林 或者 阿莫 (支持模糊搜索)" required
                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
             </div>
             {# Submit button style #}
@@ -46,13 +46,14 @@
             {# Grid for items for sale #}
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"> {# Responsive grid with gaps #}
                 {% for item in items %}
+                <!-- {% include 'includes/items_modals.html' %} -->
                 <div class="col"> {# Keeping col for structure, actual grid handled by parent #}
                     <div class="bg-white h-full rounded-lg shadow-sm p-4 flex flex-col justify-between"> {# Card style #}
                         <div> {# Container for card body content #}
-                            <h5 class="text-lg font-semibold mb-2 text-gray-800">{{ item.name }}</h5> {# Card title #}
-                            <h6 class="text-sm mb-2 text-gray-600">存储编码: {{ item.barcode }}</h6> {# Card subtitle #}
+                            <h5 class="text-lg font-semibold mb-2 text-gray-800">{{ item.name }}</h5> 
+                            <h6 class="text-sm mb-2 text-gray-600">存储编码: {{ item.barcode }}</h6> 
                             {# Description is commented out in original, keeping it commented #}
-                            {# <p class="text-gray-700 text-sm">{{ item.description|truncate(100) }}</p> #}
+                            {# <p class="text-gray-700 text-sm">{{ item.description }}</p> #}
                             <p class="text-gray-700 text-sm font-bold">价格:{{ item.price }} 元</p> {# Price #}
                             {# Specification is commented out #}
                             {# <p class="card-text"><strong>规格:{{ item.specification }} 元</strong></p> #}
@@ -65,15 +66,13 @@
                                 更多信息
                             </button>
                             {# Purchase Button (styled with Tailwind success) #}
-                            <button class="bg-green-500 hover:bg-green-600 text-white font-bold py-1 px-3 rounded focus:outline-none focus:shadow-outline text-sm"
+                            <button class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-3 rounded focus:outline-none focus:shadow-outline text-sm"
                                     data-bs-toggle="modal" data-bs-target="#Modal-PurchaseConfirm-{{ item.id }}">
                                 购买
                             </button>
                         </div>
                     </div>
                 </div>
-                {# Include the modal template INSIDE the loop for 'item' to be defined #}
-                {% include 'includes/items_modals.html' %}
                 {% endfor %}
             </div>
         </div>
@@ -100,11 +99,10 @@
                     </div>
                 </div>
                 {# Include the modal template INSIDE the loop for 'owned_item' to be defined #}
-                {% include 'includes/owned_items_modals.html' %}
+                
                 {% endfor %}
                 {% else %}
-                {# No owned items message #}
-                <div class="col"> {# Keeping col for structure #}
+                <div class="col"> 
                     <div class="bg-gray-100 rounded-lg shadow-sm p-4 text-center"> {# Card style #}
                         <h5 class="text-lg font-semibold mb-2 text-gray-800">暂无商品</h5> {# Heading #}
                         <p class="text-gray-600 text-sm">您尚未拥有任何可以出售的商品。</p> {# Text #}
@@ -115,7 +113,6 @@
         </div>
     </div>
 
-    {# Removed Bootstrap and Popper.js script links as Tailwind is used in base.html #}
 
 </div>
 
