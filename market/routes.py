@@ -11,6 +11,10 @@ import markdown
 import re # 用来进行文本处理
 # from mistralai.client import MistralClient
 
+
+
+
+# 
 client = OpenAI(
     api_key="525c607104d8891a998419b0d2ad22e0f2f26a7f",
     base_url="https://api-xa0fv6o8a9m1q9hd.aistudio-app.com/v1"
@@ -25,7 +29,7 @@ def user_to_dict(user):
 
 def get_users_json_external():
     users = User.query.all()
-    users_list = [user_to_dict(user) for user in users]
+    users_list = [user_to_dict(user) for user in users]  # 转化成列表形式
     return jsonify(users_list)
     
 
@@ -87,10 +91,10 @@ def market_page():
                 if current_user.can_purchase(p_item_object):    
                     if current_user.budget >= p_item_object.price:   # 判断金额是否大于budget
                         p_item_object.buy(current_user)
-                        flash(f"恭喜你! 你成功购买了 {p_item_object} for {p_item_object.price}")
+                        flash(f"购买成功",category="success")
                     else:
                         missing_money = p_item_object.price-current_user.budget
-                        flash(f"没有钱买{p_item_object.name},还需要{missing_money}元",category="danger")
+                        flash(f"余额不足，还需要{missing_money}元",category="danger")
         # Sell Item logic
         sold_item = request.form.get('sold_item')
         s_item_object = Item.query.filter_by(name=sold_item).first()
@@ -117,7 +121,9 @@ def market_page():
 
 @app.route('/notion')
 def notion_page():
-     return render_template('notion.html')
+    # 使用 SQLAlchemy Query API 查询所有用户
+    item = Item.query.filter_by(name='阿莫西林').first()
+    return render_template('notion.html',item=item)
 
 @app.route('/register',methods=['GET','POST'])
 def register_page():
@@ -188,11 +194,9 @@ def game_page():
 @app.route("/just_for_fun")
 # def just_for_fun_page():
 #      return render_template("just_for_fun.html")
+@login_required
 def just_for_fun_page():
     # 使用 SQLAlchemy Query API 查询所有用户
     users = User.query.all()
     return render_template('just_for_fun.html', users=users)
 
-# @app.route("/test")
-# def testtest():
-#      return render_template("rmdb.html")

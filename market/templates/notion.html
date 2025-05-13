@@ -3,12 +3,398 @@
 
 {% block title %}
     Notion Page
-{% endblock %}
+{% endblock %} 
 
 {% block content%}
-<div class="product-device box-shadow d-noe d-md-block"></div>
-<div class="product-device product-device-2 box-shadow d-none d-md-block"> </div>
-  
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>药品进销存管理系统 - 主页</title>
 
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa; /* 淡灰色背景 */
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 100; /* Behind the navbar */
+            padding: 48px 0 0; /* Height of navbar */
+            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+            background-color: #343a40; /* 深色侧边栏 */
+            color: #adb5bd;
+        }
+
+        .sidebar-sticky {
+            position: relative;
+            top: 0;
+            height: calc(100vh - 48px);
+            padding-top: .5rem;
+            overflow-x: hidden;
+            overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+        }
+
+        .sidebar .nav-link {
+            font-weight: 500;
+            color: #adb5bd; /* 链接文字颜色 */
+            padding: 10px 20px;
+        }
+
+        .sidebar .nav-link .fa-fw { /* Font Awesome fixed width icons */
+            width: 1.25em;
+            margin-right: 8px;
+        }
+
+        .sidebar .nav-link:hover {
+            color: #fff; /* 鼠标悬停时文字变白 */
+            background-color: #495057;
+        }
+
+        .sidebar .nav-link.active {
+            color: #fff;
+            background-color: #0d6efd; /* 激活链接的背景色 */
+        }
+
+        .navbar-brand {
+            padding-top: .75rem;
+            padding-bottom: .75rem;
+            font-size: 1.2rem;
+            background-color: rgba(0, 0, 0, .25);
+            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .25);
+            color: #fff;
+        }
+
+        .navbar .form-control {
+            padding: .75rem 1rem;
+            border-width: 0;
+            border-radius: 0;
+        }
+
+        .main-content {
+            margin-left: 220px; /* Default sidebar width */
+            padding: 20px;
+            transition: margin-left .3s;
+        }
+
+        /* For mobile: sidebar is off-canvas */
+        @media (max-width: 767.98px) {
+            .sidebar {
+                left: -220px; /* Hide sidebar by default */
+                transition: left 0.3s ease-in-out;
+            }
+            .sidebar.show {
+                left: 0; /* Show sidebar */
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .navbar-toggler { /* Ensure toggler is visible */
+                display: block !important;
+            }
+        }
+        /* Adjust main content when sidebar is toggled on desktop if it were a toggleable one */
+        /* This example uses a fixed sidebar on desktop and off-canvas on mobile */
+
+        .card-icon {
+            font-size: 2.5rem;
+            opacity: 0.6;
+        }
+        .quick-action-btn {
+            padding: 15px 20px;
+            font-size: 1.1rem;
+            margin: 5px;
+        }
+        .list-group-item span.badge {
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+        <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3" href="#"><i class="fas fa-pills fa-fw"></i> 药品进销存系统</a>
+        <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="navbar-nav">
+            <div class="nav-item text-nowrap d-none d-md-block">
+                 <span class="nav-link px-3 text-white">欢迎, 管理员</span>
+            </div>
+        </div>
+        <div class="navbar-nav">
+            <div class="nav-item text-nowrap">
+                <a class="nav-link px-3" href="#"><i class="fas fa-sign-out-alt fa-fw"></i> 退出</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container-fluid">
+        <div class="row">
+            <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                <div class="sidebar-sticky pt-3">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="#">
+                                <i class="fas fa-tachometer-alt fa-fw"></i> 主页概览
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-capsules fa-fw"></i> 药品管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-cart-plus fa-fw"></i> 销售开单
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-truck-loading fa-fw"></i> 采购入库
+                            </a>
+                        </li>
+                         <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-boxes fa-fw"></i> 库存盘点
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-exclamation-triangle fa-fw"></i> 库存预警
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-chart-line fa-fw"></i> 统计报表
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-users-cog fa-fw"></i> 供应商管理
+                            </a>
+                        </li>
+                         <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-user-friends fa-fw"></i> 客户管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-cog fa-fw"></i> 系统设置
+                            </a>
+                        </li>
+                    </ul>
+                    <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                        <span>帮助中心</span>
+                    </h6>
+                    <ul class="nav flex-column mb-2">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-question-circle fa-fw"></i> 操作指南
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">主页概览</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary">分享</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary">导出</button>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
+                            <i class="fas fa-calendar-alt"></i>
+                            时间范围
+                        </button>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-primary shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">今日销售额</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">¥ <span id="todaySales">1,280.00</span></div>
+                                    </div>
+                                    <div class="col-auto card-icon">
+                                        <i class="fas fa-dollar-sign text-primary"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-success shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">当前库存品种</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800"><span id="stockVariety">350</span> 种</div>
+                                    </div>
+                                    <div class="col-auto card-icon">
+                                        <i class="fas fa-pills text-success"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-warning shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">缺货药品</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800"><span id="lowStockCount">12</span> 种</div>
+                                    </div>
+                                    <div class="col-auto card-icon">
+                                        <i class="fas fa-exclamation-circle text-warning"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-danger shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">临期药品 (30天内)</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800"><span id="expiringSoonCount">5</span> 种</div>
+                                    </div>
+                                    <div class="col-auto card-icon">
+                                        <i class="fas fa-calendar-times text-danger"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row my-4">
+                    <div class="col-12">
+                        <h3 class="h4">快捷操作</h3>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <button type="button" class="btn btn-primary w-100 quick-action-btn">
+                            <i class="fas fa-cart-plus fa-fw"></i> 快速销售开单
+                        </button>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <button type="button" class="btn btn-success w-100 quick-action-btn">
+                            <i class="fas fa-plus-circle fa-fw"></i> 新增药品入库
+                        </button>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <button type="button" class="btn btn-info w-100 quick-action-btn">
+                            <i class="fas fa-search fa-fw"></i> 查询药品库存
+                        </button>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <button type="button" class="btn btn-secondary w-100 quick-action-btn">
+                            <i class="fas fa-file-alt fa-fw"></i> 查看销售记录
+                        </button>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-7 mb-4">
+                        <div class="card shadow">
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="m-0 font-weight-bold text-primary">近期销售订单</h6>
+                                <a href="#" class="small">查看全部 &rarr;</a>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>订单 #20250513001 - 阿莫西林胶囊 x2</span>
+                                        <span class="badge bg-success rounded-pill">已完成</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>订单 #20250513002 - 布洛芬缓释片 x1</span>
+                                        <span class="badge bg-success rounded-pill">已完成</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>订单 #20250512015 - 维生素C泡腾片 x5</span>
+                                        <span class="badge bg-warning text-dark rounded-pill">待付款</span>
+                                    </li>
+                                     <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <span>订单 #20250512014 - 碘伏消毒液 x3</span>
+                                        <span class="badge bg-success rounded-pill">已完成</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-5 mb-4">
+                        <div class="card shadow">
+                             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="m-0 font-weight-bold text-danger">重要通知/预警</h6>
+                                <a href="#" class="small">处理全部 &rarr;</a>
+                            </div>
+                            <div class="card-body">
+                                <div class="alert alert-warning d-flex align-items-center" role="alert">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    <div>
+                                        <strong>库存不足:</strong> "蒙脱石散" 当前库存仅剩 <strong>3</strong> 盒。
+                                    </div>
+                                </div>
+                                <div class="alert alert-danger d-flex align-items-center" role="alert">
+                                     <i class="fas fa-calendar-times me-2"></i>
+                                    <div>
+                                        <strong>药品临期:</strong> "儿童止咳糖浆 (批号: XG2308)" 将于 <strong>2025-06-10</strong> 过期。
+                                    </div>
+                                </div>
+                                 <div class="alert alert-info d-flex align-items-center" role="alert">
+                                     <i class="fas fa-info-circle me-2"></i>
+                                    <div>
+                                        <strong>采购到货:</strong> 采购单 "PO2025051001" (供应商: 国药控股) 已部分到货。
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+    <script>
+        // JavaScript for sidebar toggle on mobile
+        // Bootstrap 5 handles this automatically with data-bs-toggle="collapse"
+        // But if you need more control or if the sidebar is not part of the navbar collapse:
+        // const sidebar = document.getElementById('sidebarMenu');
+        // const navbarToggler = document.querySelector('.navbar-toggler');
+        // if (navbarToggler) {
+        //     navbarToggler.addEventListener('click', function () {
+        //         sidebar.classList.toggle('show');
+        //     });
+        // }
+
+        // Example: Update dashboard data (in a real app, this would come from a server)
+        // document.getElementById('todaySales').textContent = '1,520.50';
+        // document.getElementById('stockVariety').textContent = '352';
+        // document.getElementById('lowStockCount').textContent = '10';
+        // document.getElementById('expiringSoonCount').textContent = '7';
+    </script>
+</body>
 </html>
+
 {% endblock %}
