@@ -107,39 +107,39 @@ def market_page():
     # return render_template('market.html', items=items, purchase_form=purchase_form)
 
 
-
-
-
-@app.route('/register',methods=['GET','POST'])
+@app.route('/register', methods=['GET', 'POST'])
 def register_page():
     form = RegisterForm()
+
     if form.validate_on_submit():
         try:
-                user_to_create= User(username=form.username.data,
-                                    email_address=form.email_address.data,
-                                    password=form.password1.data)
-                db.session.add(user_to_create)
-                db.session.commit()
-                login_user(user_to_create)
-                flash(
-                    f'{user_to_create.username}成功注册！！',category='success'
-                )
-                return redirect(url_for('index_page'))
+            user_to_create = User(
+                username=form.username.data,
+                email_address=form.email_address.data,
+                password=form.password1.data
+            )
+            db.session.add(user_to_create)
+            db.session.commit()
+            login_user(user_to_create)
+            flash(f'{user_to_create.username}成功注册！！', category='success')
+            return redirect(url_for('index_page'))
         except IntegrityError:
             db.session.rollback()
-            # get_flashed_messages("Error: Email address already exists.")
-            flash("这个邮箱已经存在了",category="danger")
-            
-    if form.errors !={}:    # if there are not errors from the validations -> return 'register.html'
-        for err_msg in form.errors.values():
-            if err_msg !={}:
-                # 处理用户名已经存在
-                if err_msg == ['Username already exists!!!']:
-                     flash("用户名已经存在!",category="danger")
-                # 处理两次密码输入不相同的情况
+            flash("这个邮箱已经存在了", category="danger")
+
+    # 处理表单验证错误（无论是否提交成功）
+    if form.errors:
+        for field_name, err_msgs in form.errors.items():
+            for err_msg in err_msgs:
+                if 'Username already exists' in err_msg:
+                    flash("用户名已经存在!", category="danger")
+                elif 'Field must be equal to' in err_msg:
+                    flash("两次密码输入不相同!", category="danger")
                 else:
-                    flash(f'两次密码输入不相同',category="danger")
-    return render_template('register.html',form=form)
+                    flash(f"{err_msg}", category="danger")
+
+    # 统一返回渲染的模板（无论是否有错误）
+    return render_template('register.html', form=form)
 
 
 
