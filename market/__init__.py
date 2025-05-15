@@ -18,7 +18,7 @@ login_manager.login_message_category = "info"
 
 login_manager.login_message = "请先登录才能访问此页面！"
 # Getter and Setter methods
-from market import routes
+from market import routes    # 导入路由文件
 
 # from market import app
 # with app.app_context():

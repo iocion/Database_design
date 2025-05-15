@@ -38,3 +38,17 @@ class PurchaseItemForm(FlaskForm):
 
 class SellItemForm(FlaskForm):
     submit = SubmitField(label='卖出商品')
+
+
+
+class UpdateItemForm(FlaskForm):
+    item_name = StringField(label='药品名称',validators=[DataRequired()])
+    item_price = StringField(label='药品价格',validators=[DataRequired()])
+    item_barcode = StringField(label='药品条形码',validators=[DataRequired()])
+    item_description = StringField(label='药品描述',validators=[DataRequired()])
+    submit = SubmitField(label='更新药品信息')
+    def validate_item_name(self, item_name_to_check):
+        item = item.query.filter_by(name=item_name_to_check.data).first()
+        if item:
+            raise ValidationError('药品名称已经存在')
+        

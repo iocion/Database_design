@@ -58,6 +58,21 @@ class Item(db.Model):
     quantity =db.Column(db.Integer(),nullable=False,default=100)
     specification =db.Column(db.String(length=30),nullable=False,unique=False)
     owner = db.Column(db.Integer(),db.ForeignKey('user.id')) # 外键连接用户id
+
+    def buy(self, user, item):
+        self.owner = user.id  # 设置商品的所有者
+        user.budget -= item.price  # 扣除用户的预算
+        item.quantity -= 1      #商品数量减一
+        db.session.commit() #提前commit，解决延迟问题
+
+        if item.quantity == 0:
+            db.session.delete(item)
+        db.session.commit()
+    
+    def sell(self,user):
+        self.owner = None
+        user.budget +=self.price
+        db.session.commit()
     # created_at = db.Column(db.DateTime, default=datetime.now)
     # def time_now(self):
     #     return datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -81,13 +96,3 @@ class Comment(db.Model):
     def __repr__(self):
         return f"药品名称:{self.name}"
     
-
-    def buy(self,user):
-        self.owner=user.id
-        user.budget -=self.price
-        db.session.commit()
-
-    def sell(self,user):
-        self.owner = None
-        user.budget +=self.price
-        db.session.commit()

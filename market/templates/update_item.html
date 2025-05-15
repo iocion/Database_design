@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}
+    编辑药品信息
+{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+    <h2 class="block text-gray-700 text-xl font-bold mb-4">编辑药品信息</h2>
+    <form method="POST" action="{{ url_for('update_item', item_id=item.id) }}">
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="item_name">
+                物品名称:
+            </label>
+            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="item_name" name="item_name" type="text" value="{{ item.name }}" required>
+        </div>
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="item_price">
+                价格:
+            </label>
+            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="item_price" name="item_price" type="number" value="{{ item.price }}" required>
+        </div>
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="item_quantity">
+                数量:
+            </label>
+            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="item_quantity" name="item_quantity" type="text" value="{{ item.quantity }}">
+        </div>
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="item_quantity">
+                药品规格:
+            </label>
+            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="item_quantity" name="item_quantity" type="text" value="{{ item.specification }}">
+        </div>
+        <div class="mb-6">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="item_description">
+                描述 (可选):
+            </label>
+            <textarea class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="item_description" name="item_description">{{ item.description }}</textarea>
+        </div>
+        <div class="mb-4">
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="item_barcode">
+                商品编码 (可选):
+            </label>
+            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="item_barcode" name="item_barcode" type="text" value="{{ item.barcode }}">
+        </div>
+        <div class="flex items-center justify-between">
+            <button class="btn-custom-tailwind" type="submit">
+                更新药物信息
+            </button>
+            <form method="POST" action="{{ url_for('delete_item', item_id=item.id) }}" style="display: inline;">
+                <button class="btn-outline-custom-tailwind" type="submit">
+                    删除此药物
+                </button>
+            </form>
+        </div>
+    </form>
+</div>
+{% endblock %}

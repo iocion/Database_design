@@ -5,6 +5,7 @@
 {% endblock %}
 
 {% block content%}
+
 <style>
     /* Custom styles for the comment section and item details */
     .comment-container {
@@ -75,10 +76,25 @@
         <div class="item-info">序号: {{ item.id }}</div>
         <div class="item-info">名称: {{ item.name }}</div>
         <div class="item-info">价格: {{ item.price }}</div>
-        <div class="item-info">条形码: {{ item.barcode }}</div>
+        <div class="item-info">药品编码: {{ item.barcode }}</div>
         <div class="item-info">数量: {{ item.quantity }}</div>
         <div class="item-description">描述: {{ item.description }}</div>
     </div>
+    <div class="comment-form">
+        <h3 class="text-xl font-semibold mb-4 text-gray-700">发表评论</h3>
+        <form id="new-comment-form">
+            <div class="mb-4">
+                <label for="comment-text" class="block text-gray-700 text-sm font-bold mb-2">您的评论:</label>
+                <textarea id="comment-text" name="comment_text" rows="4" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:ring-2 focus:ring-blue-500" required></textarea>
+            </div>
+            <div class="flex items-center justify-between">
+                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline focus:ring-2 focus:ring-blue-500">
+                    发表评论
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
     <div id="comments-list">
         {% if comments %}
             {% for comment in comments %}
@@ -95,31 +111,14 @@
         {% endif %}
     </div>
 
-    <div class="comment-form">
-        <h3 class="text-xl font-semibold mb-4 text-gray-700">发表评论</h3>
-        <form id="new-comment-form">
-            <div class="mb-4">
-                <label for="comment-text" class="block text-gray-700 text-sm font-bold mb-2">您的评论:</label>
-                <textarea id="comment-text" name="comment_text" rows="4" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:ring-2 focus:ring-blue-500" required></textarea>
-            </div>
-            <div class="flex items-center justify-between">
-                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline focus:ring-2 focus:ring-blue-500">
-                    发表评论
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
 <script>
     // const newCommentForm = document.getElementById('new-comment-form');
     // const commentsList = document.getElementById('comments-list');
     // const itemId = window.location.pathname.split('/').pop(); // 从 URL 获取物品 ID
     const newCommentForm = document.getElementById('new-comment-form');
     const commentsList = document.getElementById('comments-list');
-    // const itemDetails = document.querySelector('.item-details');
-    // let itemId;
-    const itemId = 9;
+    const itemDetails = document.querySelector('.item-details');
+    let itemId;
 
     newCommentForm.addEventListener('submit', function(event) {
         event.preventDefault();

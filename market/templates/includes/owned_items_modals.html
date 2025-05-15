@@ -5,7 +5,7 @@
     }
  </style>
 <!-- 购买确认 -->
-<div class="modal fade" id="Modal-SellingConfirm-{{ owned_item.id }}" 
+<div class="modal fade" id="Modal-SellingConfirm-{{ owned_items.id }}" 
     tabindex="-1" 
     role="dialog" 
     aria-labelledby="exampleModalLabel" 
@@ -14,7 +14,7 @@
        <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="ModalLabel">
-               {{ owned_item.name }}
+               {{ owned_items.name }}
             </h5>
              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
              <span aria-hidden="true">&times;</span>
@@ -32,7 +32,7 @@
                    点击出售商品并放置到药品市场
                 </h8>
                 <br>
-                <input id="purchase_item" name="purchase_item" type="hidden" value="{{ owned_item.name }}">
+                <input id="purchase_item" name="purchase_item" type="hidden" value="{{ owned_items.name }}">
                 {{ selling_form.submit(class="btn btn-outline-danger btn-block") }}
             </form>
          </div>

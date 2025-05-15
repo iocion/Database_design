@@ -1,49 +1,33 @@
-{#
-  Refactoring the item details and purchase confirmation modals to use Tailwind CSS classes.
-  This file is intended to be included within a loop iterating over 'items'.
-#}
-
-{# Custom style for modal content background - using Tailwind class instead of inline style #}
-{# The background color is set directly on the modal-content div using bg-white #}
-
-{# Replaced Bootstrap modal classes with Tailwind equivalents #}
 <div class="fixed inset-0 z-50 overflow-y-auto hidden" id="moreinfo-{{ item.id }}" aria-labelledby="exampleModalLabel-{{ item.id }}" aria-hidden="true" role="dialog">
     <div class="flex items-center justify-center min-h-screen px-4 text-center sm:block sm:p-0">
-        {# Background overlay #}
         <div class="fixed inset-0 transition-opacity" aria-hidden="true">
             <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
         </div>
-
         <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
-        {# Modal panel #}
         <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full" role="document">
-            {# Modal Header #}
-            <div class="bg-gray-100 px-4 py-3 sm:px-6 flex justify-between items-center"> {# Adjusted header background and padding #}
-                <h5 class="text-lg font-semibold text-gray-900" id="exampleModalLabel-{{ item.id }}"> {# Adjusted title style #}
+            <div class="bg-gray-100 px-4 py-3 sm:px-6 flex justify-between items-center">
+                <h5 class="text-lg font-semibold text-gray-900" id="exampleModalLabel-{{ item.id }}">
                     {{ item.name }}
                 </h5>
-                {# Close button #}
-                <button type="button" class="text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" data-bs-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-
-            {# Modal Body #}
-            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 space-y-3"> {# Adjusted body padding and spacing #}
-                <p class="text-sm text-gray-700"><strong>序号:</strong> {{ item.id }}</p> {# Text style #}
-                <p class="text-sm text-gray-700"><strong>描述:</strong> {{ item.description }}</p> {# Text style #}
-                <p class="text-sm text-gray-700"><strong>药品规格:</strong> {{ item.specification }}</p> {# Text style #}
-                <p class="text-sm text-gray-700"><strong>价格:</strong> {{ item.price }} 元</p> {# Text style #}
-                <p class="text-sm text-gray-700"><strong>存储编码:</strong> {{ item.barcode }}</p> {# Text style #}
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 space-y-3">
+                <p class="text-sm text-gray-700"><strong>序号:</strong> {{ item.id }}</p>
+                <p class="text-sm text-gray-700"><strong>描述:</strong> {{ item.description }}</p>
+                <p class="text-sm text-gray-700"><strong>药品规格:</strong> {{ item.specification }}</p>
+                <p class="text-sm text-gray-700"><strong>价格:</strong> {{ item.price }} 元</p>
+                <p class="text-sm text-gray-700"><strong>存储编码:</strong> {{ item.barcode }}</p>
             </div>
-
-            {# Modal Footer #}
-            <div class="bg-gray-100 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse"> {# Adjusted footer background and layout #}
-                {# Close button #}
-                <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" data-dismiss="modal">
+            <div class="bg-gray-100 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" data-bs-dismiss="modal">
                     关闭
                 </button>
-                {# Save button (keeping original structure, styling with Tailwind primary button style) #}
-                {# Note: This button is type="button" in original, might need to be type="submit" for form submission #}
-                <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:rin
+                <button type="button" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
+                    确定
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
