@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField,PasswordField,SubmitField
 from wtforms.validators import Length,EqualTo,Email,DataRequired,ValidationError
-from market.models import User
+from market.models import User,Item,Doctor
 
 
 
@@ -52,3 +52,16 @@ class UpdateItemForm(FlaskForm):
         if item:
             raise ValidationError('药品名称已经存在')
         
+
+# Flask-WTF Form 类
+class DoctorForm(FlaskForm):
+    doctor_name = StringField(label='医生姓名(管理员)', validators=[Length(min=2, max=30), DataRequired()])
+    doctor_id_number = StringField(label='身份证', validators=[Length(min=10,max=20), DataRequired()])
+    doctor_phone = StringField(label='医生电话', validators=[Length(11), DataRequired()])
+    doctor_email = StringField(label='医生邮箱', validators=[Email(), DataRequired()])
+    submit = SubmitField(label='添加医生信息')
+
+class Doctor_LoginForm(FlaskForm):
+    doctor_name = StringField(label='管理员:',validators=[DataRequired()])
+    doctor_id_number = PasswordField(label='身份证:',validators=[DataRequired()])
+    submit = SubmitField(label='登录')

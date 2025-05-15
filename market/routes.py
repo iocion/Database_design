@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 from market import app
 from flask import render_template,redirect,url_for,flash,get_flashed_messages, request,jsonify
-from market.models import Item,User,Comment
-from market.forms import RegisterForm,LoginForm,PurchaseItemForm,SellItemForm,UpdateItemForm
+from market.models import Item,User,Comment,Doctor
+from market.forms import RegisterForm,LoginForm,PurchaseItemForm,SellItemForm,UpdateItemForm,DoctorForm,Doctor_LoginForm
 from sqlalchemy.exc import IntegrityError
 from market import db
 from flask_login import login_user,login_required,logout_user,current_user
 from openai import OpenAI  # 加入百度的大模型deepseekR8
 import markdown
 import re # 用来进行文本处理
+import wraps
 # from market import admin_required  # 定义管理元用户
 # from mistralai.client import MistralClient
 
@@ -108,13 +109,14 @@ def market_page():
 # 药品查询部分
 @app.route('/api/query/<string:item_name>', methods=['GET', 'POST'])
 def query_item(item_name):
-    # 使用 SQLAlchemy 的 like() 方法进行模糊查询
     #  like()  方法: 用于在数据库中执行模式匹配查询。
     #  %:   表示可以匹配任何字符序列（包括空序列）。
     item = Item.query.filter(Item.name.like(f'%{item_name}%')).first()
 
     if item:
         return jsonify({
+            'id': item.id,
+            'specification': item.specification,
             'name': item.name,
             'price': item.price,
             'barcode': item.barcode,
@@ -123,6 +125,32 @@ def query_item(item_name):
         })
     else:
         return jsonify({'error': '未找到相关药品'}), 404        
+
+# ------------------------------------------------------------------------------------------------------------------------
+# 登录管理员账号
+@app.route('/admin_login',methods=['GET','POST'])
+def doctor_login_page():
+     form = Doctor_LoginForm()
+     if form.validate_on_submit():
+          admin_user = Doctor.query.filter_by(doctor_name=form.doctor_name.data).first()
+          if admin_user and admin_user.check_password_correction(
+               attempted_password=form.doctor_id_number.data                    
+               ):
+                login_user(admin_user)
+                flash(
+                    f'欢迎{admin_user.doctor_name}医生',category='success'
+                )
+                return redirect(url_for('notion_page'))
+          else:
+               flash('密码错误或者用户不存在',category='danger')
+     return render_template('doctor_login.html',form=form)
+# 管理员登出部分
+# @app.route("/admin_logout")
+# @login_required
+# def logout_page(): 
+#     logout_user()
+#     flash("已经成功退出登录", category="info")
+#     return redirect(url_for('index_page'))
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 用户注册部分
@@ -223,12 +251,11 @@ def notion_page():
     #         flash("此药品已经已存在", category="danger")
     return render_template('notion.html',item=items,comments=comment)
 # 增加评论系统
-@app.route('/api/comments', methods=['POST'])
+@app.route('/api/comments/<int:item_id>', methods=['GET','POST'])
 @login_required
 def post_comment():
     data = request.get_json()
     comment_text = data.get('comment_text')
-    item_id = 9
     if not comment_text:
         return jsonify({'message': '评论内容不能为空'}), 400
     if not item_id:
@@ -311,5 +338,40 @@ def delete_item(item_id):
 #     comments = Comment.query.filter_by(item_id=item_id).order_by(Comment.created_at.desc()).all()
 #     return render_template('item_details.html', item=item, comments=comments)
 
+# -----------------------------------------------------------------------------------------------------------------------
+# 创建管理员账号
+@app.route('/admin/123456',methods=['GET','POST'])
+def admin_page():
+    doctor_form = DoctorForm()
+    if doctor_form.validate_on_submit():
+        try:
+            doctor_to_create = Doctor(
+                doctor_name=doctor_form.doctor_name.data,
+                doctor_id_number=doctor_form.doctor_id_number.data,
+                doctor_phone=doctor_form.doctor_phone.data,
+                doctor_email=doctor_form.doctor_email.data
+            )
+            db.session.add(doctor_to_create)
+            db.session.commit()
+            # login_user(doctor_to_create)
+            flash(f'{doctor_to_create.doctor_name}医生', category='success')
+            return redirect(url_for('index_page'))
+        except IntegrityError:
+            db.session.rollback()
+            flash("该用户已存在", category="danger")
+    if doctor_form.errors:
+        for field_name, err_msgs in doctor_form.errors.items():
+            for err_msg in err_msgs:
+                print(f"Field: {field_name}, Error: {err_msg}")
+                if 'Username already exists' in err_msg and 'Field must be equal to' not in err_msg:
+                    flash("用户名已经存在!", category="danger")
+                elif 'Field must be equal to' in err_msg and 'Username already exists' not in err_msg:
+                    flash("两次密码输入不相同!", category="danger")
+                elif 'Username already exists' in err_msg and 'Field must be equal to'  in err_msg:
+                    flash("用户名已经存在,两次密码输入不相同", category="danger")
+                else:
+                    flash(f"{err_msg}", category="danger")
+    return render_template('doctor_register.html', doctor_form=doctor_form)
 
 
+# -----------------------------------------------------------------------------------------------------------------------

@@ -1,197 +1,159 @@
 {% extends 'base.html' %}
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">药品市场</h1>
 
-{% block title %}
-    药品详情与评论
-{% endblock %}
-
-{% block content%}
-
-<style>
-    /* Custom styles for the comment section and item details */
-    .comment-container {
-        max-width: 800px; /* 限制最大宽度 */
-        margin: 20px auto; /* 居中显示 */
-        background-color: #ffffff; /* 白色背景 */
-        border-radius: 8px; /* 圆角 */
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 阴影 */
-        padding: 20px;
-    }
-    .comment-form {
-        margin-top: 20px;
-        padding-top: 20px;
-        border-top: 1px solid #e2e8f0; /* 顶部边框 */
-    }
-    .comment {
-        border-bottom: 1px solid #e2e8f0; /* 评论之间的分隔线 */
-        padding: 15px 0;
-    }
-    .comment:last-child {
-        border-bottom: none; /* 最后一个评论没有底边框 */
-    }
-    .comment-author {
-        font-weight: 600; /* 作者名加粗 */
-        color: #333;
-    }
-    .comment-text {
-        margin-top: 5px;
-        color: #555;
-        line-height: 1.6; /* 行高 */
-    }
-    .comment-meta {
-        font-size: 0.8em; /* 元信息字体大小 */
-        color: #999;
-        margin-top: 5px;
-    }
-
-    /* 新增的 item 样式 */
-    .item-details {
-        margin-bottom: 20px;
-        padding: 15px;
-        background-color: #e9eef2; /* 浅蓝色背景 */
-        border-radius: 8px;
-        border: 1px solid #cce0eb;
-    }
-    .item-title {
-        font-size: 1.5em;
-        font-weight: bold;
-        margin-bottom: 10px;
-        color: #2a4365; /* 深蓝色 */
-    }
-    .item-info {
-        margin-bottom: 5px;
-        color: #4a5568; /* 灰色 */
-    }
-    .item-description {
-        font-style: italic;
-        color: #2b6cb0; /* 蓝色 */
-        margin-top: 10px;
-    }
-</style>
-
-<div class="comment-container">
-    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">评论区</h2>
-    <div class="item-details">
-        <div class="item-details" data-item-id="{{ item.id }}">
-        <div class="item-title">物品详情</div>
-        <div class="item-info">序号: {{ item.id }}</div>
-        <div class="item-info">名称: {{ item.name }}</div>
-        <div class="item-info">价格: {{ item.price }}</div>
-        <div class="item-info">药品编码: {{ item.barcode }}</div>
-        <div class="item-info">数量: {{ item.quantity }}</div>
-        <div class="item-description">描述: {{ item.description }}</div>
-    </div>
-    <div class="comment-form">
-        <h3 class="text-xl font-semibold mb-4 text-gray-700">发表评论</h3>
-        <form id="new-comment-form">
-            <div class="mb-4">
-                <label for="comment-text" class="block text-gray-700 text-sm font-bold mb-2">您的评论:</label>
-                <textarea id="comment-text" name="comment_text" rows="4" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:ring-2 focus:ring-blue-500" required></textarea>
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-2xl font-semibold mb-4 text-gray-700">查询药品</h2>
+        <div class="flex flex-col sm:flex-row gap-4">
+            <input type="text" id="searchItemName"
+                   class="flex-grow px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                   placeholder="请输入药品名称查询">
+            <button id="queryItemButton"
+                    class="bg-blue-200 hover:bg-blue-300 text-gray-800 font-semibold py-2 px-6 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition-colors duration-200">
+                <i class="fas fa-search mr-2"></i>
+                查询
+            </button>
+        </div>
+        <div id="itemInfo" class="mt-6 p-6 bg-gray-50 rounded-lg shadow-inner" style="display: none;">
+            <h3 class="text-xl font-semibold mb-2 text-gray-800" id="itemName"></h3>
+            <p class="text-gray-600 mb-2" id="itemPrice"></p>
+            <p class="text-gray-600 mb-2" id="itemBarcode"></p>
+            <p class="text-gray-600 mb-2" id="itemDescription"></p>
+            <p class="text-gray-600 mb-2" id="itemQuantity"></p>
+            <p class="text-gray-600 mb-2" id="itemNumber"></p>  {# 新增序号显示 #}
+            <p class="text-gray-600 mb-2" id="itemSpecification"></p> {# 新增规格显示 #}
+            <div id="itemPurchase" class="mt-4">
             </div>
-            <div class="flex items-center justify-between">
-                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline focus:ring-2 focus:ring-blue-500">
-                    发表评论
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-    <div id="comments-list">
-        {% if comments %}
-            {% for comment in comments %}
-            <div class="comment">
-                <div class="comment-author">{{ comment.author.username }}</div>
-                <div class="comment-text">{{ comment.comment_text }}</div>
-                <div class="comment-meta">{{ comment.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
-            </div>
-            {% else %}
-            <div class="comment">
-                <div class="comment-text">暂无评论。</div>
-            </div>
-            {% endfor %}
-        {% endif %}
+        </div>
     </div>
 
-<script>
-    // const newCommentForm = document.getElementById('new-comment-form');
-    // const commentsList = document.getElementById('comments-list');
-    // const itemId = window.location.pathname.split('/').pop(); // 从 URL 获取物品 ID
-    const newCommentForm = document.getElementById('new-comment-form');
-    const commentsList = document.getElementById('comments-list');
-    const itemDetails = document.querySelector('.item-details');
-    let itemId;
+    {#  新增的通过序号更新药品  #}
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-2xl font-semibold mb-4 text-gray-700">通过序号更新药品</h2>
+        <div class="flex flex-col sm:flex-row gap-4">
+            <input type="number" id="updateItemNumber"
+                   class="flex-grow px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                   placeholder="请输入要更新的药品序号">
+            <button id="goToUpdateItemButton"
+                    class="bg-blue-200 hover:bg-blue-300 text-gray-800 font-semibold py-2 px-6 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition-colors duration-200">
+                <i class="fas fa-edit mr-2"></i>
+                更新药品
+            </button>
+        </div>
+    </div>
 
-    newCommentForm.addEventListener('submit', function(event) {
-        event.preventDefault();
-        const commentText = document.getElementById('comment-text').value;
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const queryItemButton = document.getElementById('queryItemButton');
+        const searchItemNameInput = document.getElementById('searchItemName');
+        const itemInfoCard = document.getElementById('itemInfo');
+        //  使用 querySelector 确保在元素存在时再进行操作
+        const itemNameDisplay = document.querySelector('#itemName');
+        const itemPriceDisplay = document.querySelector('#itemPrice');
+        const itemBarcodeDisplay = document.querySelector('#itemBarcode');
+        const itemDescriptionDisplay = document.querySelector('#itemDescription');
+        const itemQuantityDisplay = document.querySelector('#itemQuantity');
+        const itemPurchaseDiv = document.querySelector('#itemPurchase');
+        const itemNumberDisplay = document.querySelector('#itemNumber'); // 获取展示序号的元素
+        const itemSpecificationDisplay = document.querySelector('#itemSpecification'); // 获取展示规格的元素
 
-        if (commentText.trim() === '') {
-            alert('评论内容不能为空！');
-            return;
-        }
+        //  新增代码：获取更新按钮和输入框
+        const goToUpdateItemButton = document.getElementById('goToUpdateItemButton');
+        const updateItemNumberInput = document.getElementById('updateItemNumber');
 
-        const postData = {
-            comment_text: commentText,
-            item_id: itemId // 发送当前物品的 ID
-        };
-
-        fetch('/api/comments', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(postData)
-        })
-        .then(response => {
-            if (!response.ok) {
-                return response.json().then(errorData => {
-                    throw new Error(errorData.message || '发表评论失败');
-                });
+        queryItemButton.addEventListener('click', function() {
+            const itemName = searchItemNameInput.value.trim();
+            if (itemName === '') {
+                alert('请输入药品名称！');
+                return;
             }
-            return response.json();
-        })
-        .then(data => {
-            document.getElementById('comment-text').value = '';
-            appendCommentToPage(data); // 将新评论添加到页面
-        })
-        .catch(error => {
-            console.error('发表评论时出错:', error);
-            alert('发表评论失败: ' + error.message);
+
+            fetch(`/api/query/${itemName}`)
+                .then(response => {
+                    if (!response.ok) {
+                        if (response.status === 404) {
+                            throw new Error('未找到相关药品');
+                        } else {
+                            throw new Error('服务器错误');
+                        }
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    //  只有当元素存在时才更新其内容
+                    if (itemNameDisplay) itemNameDisplay.innerHTML = `
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-capsules text-blue-500"></i>
+                            <span class="text-xl font-semibold text-gray-800">${data.name}</span>
+                        </div>
+                    `;
+                    if (itemPriceDisplay)  itemPriceDisplay.innerHTML = `
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-tag text-green-500"></i>
+                            <span class="text-lg font-semibold text-blue-600">${data.price}</span> 元
+                        </div>
+                    `;
+                    if (itemBarcodeDisplay) itemBarcodeDisplay.innerHTML = `
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-barcode text-purple-500"></i>
+                            <span class="text-md text-gray-700">${data.barcode}</span>
+                        </div>
+                    `;
+                    if (itemDescriptionDisplay) itemDescriptionDisplay.innerHTML = `
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-file-alt text-indigo-500"></i>
+                            <span class="text-md text-gray-700">${data.description}</span>
+                        </div>
+                    `;
+                    if (itemQuantityDisplay) itemQuantityDisplay.innerHTML = `
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-box-open text-yellow-500"></i>
+                            <span class="text-lg font-semibold text-green-600">${data.quantity}</span> 份
+                        </div>
+                    `;
+                    if (itemNumberDisplay) itemNumberDisplay.innerHTML = `  {# 序号 #}
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-hashtag text-blue-500"></i>
+                            <span class="text-md text-gray-700">序号: ${data.id}</span>
+                        </div>
+                    `;
+                    if (itemSpecificationDisplay) itemSpecificationDisplay.innerHTML = `  {# 规格 #}
+                        <div class="flex items-center gap-2">
+                            <i class="fas fa-flask text-purple-500"></i>
+                            <span class="text-md text-gray-700">规格: ${data.specification}</span>
+                        </div>
+                    `;
+
+                    // 添加购买按钮
+                    if (itemPurchaseDiv) itemPurchaseDiv.innerHTML = `
+                        <form method="POST" action="">
+                            <input type="hidden" name="purchase_item" value="${data.name}">
+                            <button type="submit"
+                                    class="w-full bg-blue-200 hover:bg-blue-300 text-gray-800 font-semibold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition-colors duration-200">
+                                <i class="fas fa-shopping-cart mr-2"></i>
+                                立即购买
+                            </button>
+                        </form>
+                    `;
+                    itemInfoCard.style.display = 'block';
+                })
+                .catch(error => {
+                    alert(error.message);
+                    itemInfoCard.style.display = 'none';
+                });
+        });
+
+        //  新增代码：更新按钮点击事件
+        goToUpdateItemButton.addEventListener('click', function() {
+            const itemId = updateItemNumberInput.value.trim();
+            if (itemId === '') {
+                alert('请输入要更新的药品序号！');
+                return;
+            }
+            //  直接跳转到更新页面
+            window.location.href = `/update_item/${itemId}`;
         });
     });
-
-    function appendCommentToPage(commentData) {
-        const newCommentDiv = document.createElement('div');
-        newCommentDiv.classList.add('comment');
-        newCommentDiv.innerHTML = `
-            <div class="comment-author">${commentData.author_name}</div>
-            <div class="comment-text">${commentData.comment_text}</div>
-            <div class="comment-meta">${new Date(commentData.created_at).toLocaleString()}</div>
-        `;
-        commentsList.prepend(newCommentDiv); // 添加到评论列表的顶部
-    }
-
-    // 页面加载时获取现有评论
-    window.addEventListener('load', function() {
-        fetch(`/api/comments/${itemId}`)
-            .then(response => response.json())
-            .then(comments => {
-                commentsList.innerHTML = ''; // 清空初始的示例评论
-                comments.forEach(comment => {
-                    appendCommentToPage(comment);
-                });
-            })
-            .catch(error => {
-                console.error('获取评论时出错:', error);
-            });
-    });
-</script>
-
-{% endblock %}
-
-{% block footer %}
-    <footer class="bg-gray-800 text-white py-4">
-        <div class="container mx-auto text-center">
-            <p>copyright; 2025年数据库课程设计.</p>
-        </div>
-    </footer>
+    </script>
 {% endblock %}

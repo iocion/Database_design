@@ -4,39 +4,5 @@
 {% endblock %}
 
 {% block content %}
-    <div class="container mx-auto px-4 py-8">
-        <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">更新药品</h1>
 
-        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 class="text-2xl font-semibold mb-4 text-gray-700">通过序号更新药品</h2>
-            <div class="flex flex-col sm:flex-row gap-4">
-                <input type="number" id="updateItemNumber"
-                       class="flex-grow px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                       placeholder="请输入要更新的药品序号">
-                <button id="goToUpdateItemButton"
-                        class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-6 rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50 transition-colors duration-200">
-                    <i class="fas fa-edit mr-2"></i>
-                    更新药品
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // 获取更新按钮和输入框
-            const goToUpdateItemButton = document.getElementById('goToUpdateItemButton');
-            const updateItemNumberInput = document.getElementById('updateItemNumber');
-
-            goToUpdateItemButton.addEventListener('click', function() {
-                const itemId = updateItemNumberInput.value.trim();
-                if (itemId === '') {
-                    alert('请输入要更新的药品序号！');
-                    return;
-                }
-                //  直接跳转到更新页面
-                window.location.href = `/update_item/${itemId}`;
-            });
-        });
-    </script>
 {% endblock %}

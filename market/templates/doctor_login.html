@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Login Page
+{% endblock %}
+
+{% block content %}
+
+<div class="container mx-auto flex justify-center items-center min-h-screen px-4"> 
+    <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm"> 
+        <h1 class="text-2xl font-bold mb-6 text-center text-gray-800">欢迎管理员登录</h1> 
+
+        <form method="POST" class="space-y-4 text-gray-700"> 
+            {{ form.hidden_tag() }}
+
+            <div class="form-group"> 
+                {{ form.doctor_name.label(class="block text-sm font-medium text-gray-700") }}
+                {{ form.doctor_name(class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm", placeholder="医生姓名") }}
+            </div>
+
+            <div class="form-group">
+                {{ form.doctor_id_number.label(class="block text-sm font-medium text-gray-700") }}
+                {{ form.doctor_id_number(type="password", class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm", placeholder="密码") }}
+            </div>
+                 
+            <div class="text-center space-x-4"> 
+                <h6 class="text-sm text-gray-600 mb-2">没有账号?</h6> 
+                <a class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" href="{{ url_for('register_page') }}">注册用户账号</a>
+            </div>
+
+            <div class="form-group"> 
+               {{ form.submit(value="点击登录", class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500") }}
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

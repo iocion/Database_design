@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Register Page
+{% endblock %}
+
+{% block content %}
+
+<div class="container mx-auto flex justify-center items-center min-h-screen px-4"> {# Added min-h-screen to center vertically, similar to login page #}
+    <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-md"> {# Adjusted padding, rounded corners, shadow, and increased max-width slightly #}
+        <div class="flex flex-col items-center"> {# Use flexbox to center content horizontally within this div #}
+            {# Image styling with Tailwind #}
+            <img class="mb-6 w-24 h-auto rounded-full shadow-md" src="/static/test.jpg" alt="Logo"> {# Added margin-bottom, fixed width, auto height, rounded-full, and shadow #}
+
+            <h1 class="text-2xl font-bold mb-6 text-center text-gray-800">医生申请处</h1> {# Adjusted heading size and style #}
+
+            <form method="POST" class="w-full space-y-4 text-gray-700"> {# Added w-full and space-y for vertical spacing between form groups #}
+                {{ doctor_form.hidden_tag() }}
+                <div class="form-group"> {# form-group is not a Tailwind class, keeping for structure #}
+                    
+                    {{ doctor_form.doctor_name.label(class="block text-sm font-medium text-gray-700") }}
+                    {{ doctor_form.doctor_name(class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm", placeholder="医生姓名") }} {# Added Tailwind form input styles #}
+                </div>
+                <div class="form-group"> 
+                    {{ doctor_form.doctor_id_number.label(class="block text-sm font-medium text-gray-700") }}
+                    {{ doctor_form.doctor_id_number(class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm", placeholder="医生身份证号") }} {# Added Tailwind form input styles #}
+                </div>
+                
+                <div class="form-group"> {# form-group is not a Tailwind class, keeping for structure #}
+                    
+                    {{ doctor_form.doctor_phone.label(class="block text-sm font-medium text-gray-700") }}
+                    {{ doctor_form.doctor_phone(class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm", placeholder="手机号") }} {# Added Tailwind form input styles #}
+                </div>
+                <div class="form-group"> {# form-group is not a Tailwind class, keeping for structure #}
+                    {{ doctor_form.doctor_email.label(class="block text-sm font-medium text-gray-700") }}
+                    {{ doctor_form.doctor_email(class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm", placeholder="邮箱地址") }} {# Added Tailwind form input styles #}
+                </div>
+                
+                {# Removed the <br> as vertical spacing is handled by space-y-4 #}
+
+                <div class="text-center"> {# Centering the text #}
+                    <h6 class="text-sm text-gray-600 mb-2">已经有账户了？</h6> {# Adjusted text size and color #}
+                    {# Using Tailwind button classes for the link #}
+                    <a class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" href="{{ url_for('login_page') }}">点击登录</a> {# Styled the link as a button #}
+                </div>
+
+                {# Using Tailwind button classes for the submit button #}
+                {{ doctor_form.submit(value="提交注册", class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500") }} {# Styled the submit button #}
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

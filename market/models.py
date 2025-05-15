@@ -13,7 +13,7 @@ class User(db.Model,UserMixin):
     username =db.Column(db.String(length=30),nullable=False,unique=True)
     email_address = db.Column(db.String(length=50),nullable=False,unique=True)
     password_hash = db.Column(db.String(length=60),nullable=False)
-    budget = db.Column(db.Integer(),nullable=False,default=10000000)
+    budget = db.Column(db.Integer(),nullable=False,default=1000)
     items =db.relationship('Item',backref='owned_user',lazy=True)
 # backreference
 
@@ -79,6 +79,7 @@ class Item(db.Model):
 
 # class Register(db.Model):
 #     user_name = db.Column(db.String(length=50),nullable=False,unique=True)
+# 评论表
 class Comment(db.Model):
     __tablename__ = 'comment'
     id = db.Column(db.Integer, primary_key=True)
@@ -96,3 +97,16 @@ class Comment(db.Model):
     def __repr__(self):
         return f"药品名称:{self.name}"
     
+class Doctor(db.Model,UserMixin):
+    __tablename__ = 'doctor'  # 指定表名
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)  # 医生ID，自动生成唯一标识
+    doctor_name = db.Column(db.String(30), nullable=False)  # 医生姓名，不能为空，最大长度30
+    doctor_id_number = db.Column(db.String(20), nullable=False, unique=True)  # 医生身份证号，不能为空，唯一
+    doctor_phone = db.Column(db.String(11), nullable=False, unique=True)  # 医生电话，不能为空，唯一，长度11
+    doctor_email = db.Column(db.String(255), nullable=False, unique=True)  # 医生邮箱，不能为空，唯一，符合邮箱格式，最大长度255
+    created_at = db.Column(db.TIMESTAMP, server_default=db.func.now())  # 创建时间，默认为当前时间
+    updated_at = db.Column(db.TIMESTAMP, server_default=db.func.now(), onupdate=db.func.now())  # 更新时间，默认为当前时间，更新时自动更新
+
+    def check_password_correction(self, attempted_password):
+        return self.doctor_id_number == attempted_password  # 直接比较明文密码
