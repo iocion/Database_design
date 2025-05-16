@@ -2,7 +2,7 @@
 运行方式
 ```bash
   cd Database_design
-  pip install -r requirments.txt
+  pip install -r requirements.txt
   python run.py
 ```
 配置自己的数据库sqlalchemy
