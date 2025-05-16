@@ -6,33 +6,38 @@ Login Page
 
 {% block content %}
 
-<div class="container mx-auto flex justify-center items-center min-h-screen px-4"> 
-    <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-sm"> 
-        <h1 class="text-2xl font-bold mb-6 text-center text-gray-800">请登录您的账户</h1> 
+<div class="container mx-auto flex justify-center items-center min-h-screen px-4">
+    <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-md mx-auto">
+        <div class="flex flex-col items-center">
+            <!-- 确保图片居中并添加适当间距 -->
+            <img class="my-6 w-24 h-auto rounded-full shadow-md" src="/static/test.jpg" alt="Logo">
 
-        <form method="POST" class="space-y-4 text-gray-700"> 
-            {{ form.hidden_tag() }}
+            <h1 class="text-2xl font-bold mb-6 text-center text-gray-800">请登录您的账户</h1>
 
-            <div class="form-group"> 
-                {{ form.username.label(class="block text-sm font-medium text-gray-700") }}
-                {{ form.username(class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm", placeholder="用户名") }}
-            </div>
+            <form method="POST" class="space-y-4 text-gray-700 w-full">
+                {{ form.hidden_tag() }}
 
-            <div class="form-group">
-                {{ form.password.label(class="block text-sm font-medium text-gray-700") }}
-                {{ form.password(type="password", class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm", placeholder="密码") }}
-            </div>
-                 
-            <div class="text-center space-x-4"> 
-                <h6 class="text-sm text-gray-600 mb-2">没有账号?</h6> 
-                <a class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" href="{{ url_for('register_page') }}">点击注册账号</a>
-                <a class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" href="{{ url_for('doctor_login_page') }}">登录医生账号</a>
-            </div>
+                <div class="form-group">
+                    {{ form.username.label(class="block text-sm font-medium text-gray-700") }}
+                    {{ form.username(class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm", placeholder="用户名") }}
+                </div>
 
-            <div class="form-group"> 
-               {{ form.submit(value="点击登录", class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500") }}
-            </div>
-        </form>
+                <div class="form-group">
+                    {{ form.password.label(class="block text-sm font-medium text-gray-700") }}
+                    {{ form.password(type="password", class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm", placeholder="密码") }}
+                </div>
+
+                <div class="text-center space-x-4">
+                    <h6 class="text-sm text-gray-600 mb-2">没有账号?</h6>
+                    <a class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" href="{{ url_for('register_page') }}">点击注册账号</a>
+                    <a class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" href="{{ url_for('doctor_login_page') }}">登录医生账号</a>
+                </div>
+
+                <div class="form-group">
+                   {{ form.submit(value="点击登录", class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500") }}
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
