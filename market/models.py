@@ -2,6 +2,7 @@ from market import db,login_manager
 from market import bcrypt
 from flask_login import UserMixin
 from datetime import datetime
+from flask_sqlalchemy import SQLAlchemy
 # python 的代码逻辑
 @login_manager.user_loader
 def load_user(user_id):
@@ -49,29 +50,48 @@ class User(db.Model,UserMixin):
         return item_obj in self.items
 
 # 药品表    
+class Activity(db.Model):
+    __tablename__ = 'activity'
+    purchase_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    item_id = db.Column(db.Integer, db.ForeignKey('item.id'), nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
+    timestamp = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp())
+
 class Item(db.Model):
-    id = db.Column(db.Integer(),primary_key=True)
-    name = db.Column(db.String(length=30),nullable=False,unique=True)
-    price =db.Column(db.Integer(),nullable=False)
-    barcode =db.Column(db.String(length=12),nullable=False,unique=False)
-    description =db.Column(db.String(length=1024),nullable=False,unique=False)
-    quantity =db.Column(db.Integer(),nullable=False,default=100)
-    specification =db.Column(db.String(length=30),nullable=False,unique=False)
-    owner = db.Column(db.Integer(),db.ForeignKey('user.id')) # 外键连接用户id
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(length=30), nullable=False, unique=True)
+    price = db.Column(db.Integer, nullable=False)
+    barcode = db.Column(db.String(length=12), nullable=False, unique=False)
+    description = db.Column(db.String(length=1024), nullable=False, unique=False)
+    quantity = db.Column(db.Integer, nullable=False, default=100)
+    specification = db.Column(db.String(length=30), nullable=False, unique=False)
+    owner = db.Column(db.Integer, db.ForeignKey('user.id'))  # 外键连接用户id
 
-    def buy(self, user, item):
-        self.owner = user.id  # 设置商品的所有者
-        user.budget -= item.price  # 扣除用户的预算
-        item.quantity -= 1      #商品数量减一
-        db.session.commit() #提前commit，解决延迟问题
+    def buy(self, user, quantity):
+        if not isinstance(quantity, int):
+            raise ValueError("购买数量必须是整数")
+        if quantity <= 0:
+            raise ValueError("购买数量必须大于0")
+        if self.quantity < quantity:
+            raise ValueError("库存不足")
+        if user.budget < self.price * quantity:
+            raise ValueError("用户预算不足")
 
-        if item.quantity == 0:
-            db.session.delete(item)
-        db.session.commit()
-    
-    def sell(self,user):
+        with db.session.begin():  # Use transaction for consistency
+            self.owner = user.id  # 设置商品的所有者 (保留原有逻辑)
+            user.budget -= self.price * quantity  # 扣除用户的预算
+            self.quantity -= quantity  # 商品数量减去购买数量
+            # 记录购买到 activity 表
+            activity = Activity(user_id=user.id, item_id=self.id, quantity=quantity)
+            db.session.add(activity)
+            if self.quantity == 0:
+                db.session.delete(self)
+            # 事务结束时自动提交
+
+    def sell(self, user):
         self.owner = None
-        user.budget +=self.price
+        user.budget += self.price
         db.session.commit()
     # created_at = db.Column(db.DateTime, default=datetime.now)
     # def time_now(self):

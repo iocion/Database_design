@@ -375,3 +375,22 @@ def admin_page():
 
 
 # -----------------------------------------------------------------------------------------------------------------------
+
+@app.route('/purchase', methods=['POST'])
+def purchase():
+    try:
+        item_name = request.form.get('item_name')
+        quantity = int(request.form.get('quantity'))  # 转换为整数
+        user = User.query.get(current_user.id)  # 假设使用 Flask-Login
+        item = Item.query.filter_by(name=item_name).first()
+
+        if not item:
+            flash('药品不存在', 'error')
+            return redirect('/market')
+
+        item.buy(user, quantity)  # 正确：传递 quantity
+        flash('购买成功', 'success')
+        return redirect('/market')
+    except ValueError as e:
+        flash(str(e), 'error')
+        return redirect('/market')

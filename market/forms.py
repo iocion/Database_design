@@ -65,3 +65,6 @@ class Doctor_LoginForm(FlaskForm):
     doctor_name = StringField(label='管理员:',validators=[DataRequired()])
     doctor_id_number = PasswordField(label='身份证:',validators=[DataRequired()])
     submit = SubmitField(label='登录')
+
+
+    
