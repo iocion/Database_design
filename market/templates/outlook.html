@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">药品市场</h1>
+
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-2xl font-semibold mb-4 text-gray-700">查询药品</h2>
+        <div class="flex flex-col sm:flex-row gap-4 mb-4">
+            <input type="text" id="searchItemName"
+                   class="flex-grow px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                   placeholder="请输入药品名称查询">
+        </div>
+        <div class="flex flex-col sm:flex-row gap-4">
+            <input type="number" id="searchItemId"
+                   class="flex-grow px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                   placeholder="或输入药品序号查询">
+            <button id="queryItemButton"
+                    class="bg-blue-300 hover:bg-blue-400 text-gray-800 font-semibold py-2 px-6 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-75 transition-colors duration-200">
+                <i class="fas fa-search mr-2"></i>
+                查询
+            </button>
+        </div>
+        <div id="itemInfo" class="mt-6 p-6 bg-gray-50 rounded-lg shadow-inner" style="display: none;">
+            <h3 class="text-xl font-semibold mb-2 text-gray-800" id="itemName"></h3>
+            <p class="text-gray-600 mb-2" id="itemPrice"></p>
+            <p class="text-gray-600 mb-2" id="itemBarcode"></p>
+            <p class="text-gray-600 mb-2" id="itemDescription"></p>
+            <p class="text-gray-600 mb-2" id="itemQuantity"></p>
+            <p class="text-gray-600 mb-2" id="itemNumber"></p> {# 序号显示 #}
+            <p class="text-gray-600 mb-2" id="itemSpecification"></p> {# 规格显示 #}
+            <div id="itemPurchase" class="mt-4">
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-2xl font-semibold mb-4 text-gray-700">通过序号更新药品</h2>
+        <div class="flex flex-col sm:flex-row gap-4">
+            <input type="number" id="updateItemNumber"
+                   class="flex-grow px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-blue-300"
+                   placeholder="请输入要更新的药品序号">
+            <button id="goToUpdateItemButton"
+                    class="bg-blue-300 hover:bg-blue-400 text-gray-800 font-semibold py-2 px-6 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-75 transition-colors duration-200">
+                <i class="fas fa-edit mr-2"></i>
+                更新药品
+            </button>
+        </div>
+    </div>
+<!-- <button id="viewCommentsButton" class="bg-blue-300 hover:bg-blue-400 text-gray-800 font-semibold py-2 px-6 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-75 transition-colors duration-200">查看评论</button> -->
+
+<script>
+    document.getElementById('viewCommentsButton').addEventListener('click', function() {
+        window.location.href = '/comments';
+    });
+</script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const queryItemButton = document.getElementById('queryItemButton');
+            const searchItemNameInput = document.getElementById('searchItemName');
+            const searchItemIdInput = document.getElementById('searchItemId'); // 获取药品 ID 输入框
+            const itemInfoCard = document.getElementById('itemInfo');
+            const itemNameDisplay = document.querySelector('#itemName');
+            const itemPriceDisplay = document.querySelector('#itemPrice');
+            const itemBarcodeDisplay = document.querySelector('#itemBarcode');
+            const itemDescriptionDisplay = document.querySelector('#itemDescription');
+            const itemQuantityDisplay = document.querySelector('#itemQuantity');
+            const itemPurchaseDiv = document.querySelector('#itemPurchase');
+            const itemNumberDisplay = document.querySelector('#itemNumber');
+            const itemSpecificationDisplay = document.querySelector('#itemSpecification');
+            const goToUpdateItemButton = document.getElementById('goToUpdateItemButton');
+            const updateItemNumberInput = document.getElementById('updateItemNumber');
+
+            queryItemButton.addEventListener('click', function() {
+                const itemName = searchItemNameInput.value.trim();
+                const itemId = searchItemIdInput.value.trim();
+
+                let apiUrl = '';
+                if (itemId) {
+                    apiUrl = `/api/query_id/${itemId}`; // 使用 ID 查询的 API 接口
+                } else if (itemName) {
+                    apiUrl = `/api/query/${itemName}`; // 仍然支持按名称模糊查询
+                } else {
+                    alert('请输入药品名称或序号进行查询！');
+                    return;
+                }
+
+                fetch(apiUrl)
+                    .then(response => {
+                        if (!response.ok) {
+                            if (response.status === 404) {
+                                throw new Error('未找到相关药品');
+                            } else {
+                                throw new Error('服务器错误');
+                            }
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (itemNameDisplay) itemNameDisplay.innerHTML = `
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-capsules text-blue-400"></i>
+                                <span class="text-xl font-semibold text-gray-800">${data.name}</span>
+                            </div>
+                        `;
+                        if (itemPriceDisplay) itemPriceDisplay.innerHTML = `
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-tag text-green-400"></i>
+                                <span class="text-lg font-semibold text-blue-400">${data.price}</span> 元
+                            </div>
+                        `;
+                        if (itemBarcodeDisplay) itemBarcodeDisplay.innerHTML = `
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-barcode text-purple-400"></i>
+                                <span class="text-md text-gray-700">${data.barcode}</span>
+                            </div>
+                        `;
+                        if (itemDescriptionDisplay) itemDescriptionDisplay.innerHTML = `
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-file-alt text-indigo-400"></i>
+                                <span class="text-md text-gray-700">${data.description}</span>
+                            </div>
+                        `;
+                        if (itemQuantityDisplay) itemQuantityDisplay.innerHTML = `
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-box-open text-yellow-400"></i>
+                                <span class="text-lg font-semibold text-green-600">${data.quantity}</span> 份
+                            </div>
+                        `;
+                        if (itemNumberDisplay) itemNumberDisplay.innerHTML = `
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-hashtag text-blue-400"></i>
+                                <span class="text-md text-gray-700">序号: ${data.id}</span>
+                            </div>
+                        `;
+                        if (itemSpecificationDisplay) itemSpecificationDisplay.innerHTML = `
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-flask text-purple-400"></i>
+                                <span class="text-md text-gray-700">规格: ${data.specification}</span>
+                            </div>
+                        `;
+
+                        if (itemPurchaseDiv) itemPurchaseDiv.innerHTML = `
+                            <form method="POST" action="">
+                                <input type="hidden" name="purchase_item" value="${data.name}">
+                                <button type="submit"
+                                        class="w-full bg-blue-300 hover:bg-blue-400 text-gray-800 font-semibold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-75 transition-colors duration-200">
+                                    <i class="fas fa-shopping-cart mr-2"></i>
+                                    立即购买
+                                </button>
+                            </form>
+                        `;
+                        itemInfoCard.style.display = 'block';
+                    })
+                    .catch(error => {
+                        alert(error.message);
+                        itemInfoCard.style.display = 'none';
+                    });
+            });
+
+            goToUpdateItemButton.addEventListener('click', function() {
+                const itemId = updateItemNumberInput.value.trim();
+                if (itemId === '') {
+                    alert('请输入要更新的药品序号！');
+                    return;
+                }
+                window.location.href = `/update_item/${itemId}`;
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    药品详情与评论
+{% endblock %}
+
+{% block content %}
+<style>
+    /* Custom styles for the comment section and item details */
+    .comment-container {
+        max-width: 800px; /* 限制最大宽度 */
+        margin: 20px auto; /* 居中显示 */
+        background-color: #ffffff; /* 白色背景 */
+        border-radius: 8px; /* 圆角 */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 阴影 */
+        padding: 20px;
+    }
+    .comment-form {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #e2e8f0; /* 顶部边框 */
+    }
+    .comment {
+        border-bottom: 1px solid #e2e8f0; /* 评论之间的分隔线 */
+        padding: 15px 0;
+        display: flex; /* 使用 flex 布局 */
+        justify-content: space-between; /* 内容两端对齐 */
+        align-items: center; /* 垂直居中 */
+    }
+    .comment:last-child {
+        border-bottom: none; /* 最后一个评论没有底边框 */
+    }
+    .comment-details {
+        flex-grow: 1; /* 占据剩余空间 */
+    }
+    .comment-author {
+        font-weight: 600; /* 作者名加粗 */
+        color: #333;
+    }
+    .comment-text {
+        margin-top: 5px;
+        color: #555;
+        line-height: 1.6; /* 行高 */
+    }
+    .comment-meta {
+        font-size: 0.8em; /* 元信息字体大小 */
+        color: #999;
+        margin-top: 5px;
+    }
+    .delete-button, .submit-button {
+        background-color: #93c5fd; /* 浅蓝色背景 */
+        color: #1e3a8a; /* 深蓝色文字 */
+        border: none;
+        padding: 6px 10px; /* 减小 padding */
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 0.8em; /* 减小 font-size */
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-left: 10px;
+    }
+    .delete-button:hover, .submit-button:hover {
+        background-color: #60a5fa;
+    }
+
+    /* 新增的 item 样式 */
+    .item-details {
+        margin-bottom: 20px;
+        padding: 15px;
+        background-color: #e9eef2; /* 浅蓝色背景 */
+        border-radius: 8px;
+        border: 1px solid #cce0eb;
+    }
+    .item-title {
+        font-size: 1.5em;
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #2a4365; /* 深蓝色 */
+    }
+    .item-info {
+        margin-bottom: 5px;
+        color: #4a5568; /* 灰色 */
+    }
+    .item-description {
+        font-style: italic;
+        color: #2b6cb0; /* 蓝色 */
+        margin-top: 10px;
+    }
+</style>
+
+<div class="comment-container">
+    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">评论区</h2>
+    <div class="item-details" data-item-id="{{ item.id }}">
+        <div class="item-title">物品详情</div>
+        <div class="item-info">序号: {{ item.id }}</div>
+        <div class="item-info">名称: {{ item.name }}</div>
+        <div class="item-info">价格: {{ item.price }}</div>
+        <div class="item-info">条形码: {{ item.barcode }}</div>
+        <div class="item-info">数量: {{ item.quantity }}</div>
+        <div class="item-description">描述: {{ item.description }}</div>
+    </div>
+    <div class="comment-form">
+        <h3 class="text-xl font-semibold mb-4 text-gray-700">评论总数:{{ comment_count }}</h3>
+        <h3 class="text-xl font-semibold mb-4 text-gray-700">发表评论</h3>
+        <form id="new-comment-form">
+            <div class="mb-4">
+                <label for="comment-text" class="block text-gray-700 text-sm font-bold mb-2">您的评论:</label>
+                <textarea id="comment-text" name="comment_text" rows="4" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:ring-2 focus:ring-blue-500" required></textarea>
+            </div>
+            <div class="flex items-center justify-end">
+                <button type="submit" class="submit-button">
+                    发表评论
+                </button>
+            </div>
+        </form>
+    </div>
+    <div id="comments-list">
+        {% if comments %}
+            {% for comment in comments %}
+            <div class="comment" data-comment-id="{{ comment.id }}">
+                <div class="comment-details">
+                    <div class="comment-author">{{ comment.author.username }}</div>
+                    <div class="comment-text">{{ comment.comment_text }}</div>
+                    <div class="comment-meta">{{ comment.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+                </div>
+                {% if current_user.is_authenticated and comment.user_id == current_user.id %}
+                <button class="delete-button" onclick="deleteComment({{ comment.id }})">delete</button>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="comment">
+                <div class="comment-text">暂无评论。</div>
+            </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    const newCommentForm = document.getElementById('new-comment-form');
+    const commentsList = document.getElementById('comments-list');
+    const itemId = {{ item.id }}; // 从模板获取物品 ID
+    newCommentForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        const commentText = document.getElementById('comment-text').value;
+
+        if (commentText.trim() === '') {
+            alert('评论内容不能为空！');
+            return;
+        }
+
+        const postData = {
+            comment_text: commentText,
+            item_id: itemId
+        };
+
+        fetch('/api/comments/{{ item.id }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(postData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(errorData => {
+                    throw new Error(errorData.message || '发表评论失败');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            document.getElementById('comment-text').value = '';
+            appendCommentToPage(data); // 将新评论添加到页面
+        })
+        .catch(error => {
+            console.error('发表评论时出错:', error);
+            alert('发表评论失败: ' + error.message);
+        });
+    });
+
+    function appendCommentToPage(commentData) {
+        const newCommentDiv = document.createElement('div');
+        newCommentDiv.classList.add('comment');
+        newCommentDiv.setAttribute('data-comment-id', commentData.id);
+        newCommentDiv.innerHTML = `
+            <div class="comment-details">
+                <div class="comment-author">${commentData.author_name}</div>
+                <div class="comment-text">${commentData.comment_text}</div>
+                <div class="comment-meta">${new Date(commentData.created_at).toLocaleString()}</div>
+            </div>
+            {% if current_user.is_authenticated %}
+            <button class="delete-button" onclick="deleteComment(${commentData.id})">delete</button>
+            {% endif %}
+        `;
+        commentsList.prepend(newCommentDiv); // 添加到评论列表的顶部
+    }
+
+    function deleteComment(commentId) {
+        if (confirm('你真的打算删除评论吗QWQ')) {
+            fetch(`/api/comments/${commentId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errorData => {
+                        throw new Error(errorData.message || '删除评论失败');
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                const commentElement = document.querySelector(`.comment[data-comment-id="${commentId}"]`);
+                if (commentElement) {
+                    commentElement.remove();
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('删除评论时出错:', error);
+                alert('删除评论失败: ' + error.message);
+            });
+        }
+    }
+
+    // 页面加载时获取现有评论
+</script>
+
+{% endblock %}
+
+{% block footer %}
+    <footer class="bg-gray-800 text-white py-4">
+        <div class="container mx-auto text-center">
+            <p>&copy; 2025年数据库课程设计.</p>
+        </div>
+    </footer>
+{% endblock %}

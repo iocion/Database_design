@@ -67,9 +67,11 @@ def index_page():
 @app.route('/storage',methods=['GET','POST'])
 @login_required
 def storage_page():
-        items = Item.query.filter_by(owner=None)
+        items = Item.query.filter_by(owner=None)   
         owned_items = Item.query.filter_by(owner=current_user.id)
-        return render_template('storage.html',items=items,owned_items=owned_items)
+        # owned_item_count = Item.query.filter(Item.owner!=None).count()
+        owned_item_count = Item.query.filter_by(owner=current_user.id).count()
+        return render_template('storage.html',items=items,owned_items=owned_items,owned_item_count=owned_item_count)
 
 
 # ---------------------------------------------------------------------------------------------------------------------------
@@ -80,6 +82,7 @@ def market_page():
     # Purchase Item Logic
     selling_form = SellItemForm()
     purchase_form =PurchaseItemForm()
+    item_count = Item.query.count()
     if request.method =='POST': #解决js表单每一次跳出,request不能分清get和post方法
         purchased_item = request.form.get('purchase_item')
         p_item_object = Item.query.filter_by(name=purchased_item).first()
@@ -103,16 +106,16 @@ def market_page():
     if request.method == 'GET':
         items = Item.query.filter_by(owner=None)
         owned_items = Item.query.filter_by(owner=current_user.id)
-        return render_template('market.html',items=items,purchase_form=purchase_form,owned_items=owned_items,selling_form=selling_form)
+        return render_template('market.html',item_count=item_count,items=items,purchase_form=purchase_form,owned_items=owned_items,selling_form=selling_form)
     
 # ---------------------------------------------------------------------------------------------------------------------------
 # 药品查询部分
+# 使用名称查询
 @app.route('/api/query/<string:item_name>', methods=['GET', 'POST'])
 def query_item(item_name):
     #  like()  方法: 用于在数据库中执行模式匹配查询。
     #  %:   表示可以匹配任何字符序列（包括空序列）。
     item = Item.query.filter(Item.name.like(f'%{item_name}%')).first()
-
     if item:
         return jsonify({
             'id': item.id,
@@ -125,7 +128,23 @@ def query_item(item_name):
         })
     else:
         return jsonify({'error': '未找到相关药品'}), 404        
-
+# 使用药品序号进行查询
+@app.route('/api/query_id/<int:item_id>',methods=['GET','POST'])
+def query_item_by_id(item_id):
+    # item = Item.query.filter(item_id).first()
+    item = Item.query.filter_by(id=item_id).first()
+    if item:
+        return jsonify({
+            'id': item.id,
+            'specification': item.specification,
+            'name':item.name,
+            'price':item.price,
+            'barcode':item.barcode,
+            'description':item.description,
+            'quantity':item.quantity
+        })
+    else:
+        return jsonify({'error':'未找到相关药品'}),404
 # ------------------------------------------------------------------------------------------------------------------------
 # 登录管理员账号
 @app.route('/admin_login',methods=['GET','POST'])
@@ -140,7 +159,7 @@ def doctor_login_page():
                 flash(
                     f'欢迎{admin_user.doctor_name}医生',category='success'
                 )
-                return redirect(url_for('notion_page'))
+                return redirect(url_for('outlook_page'))
           else:
                flash('密码错误或者用户不存在',category='danger')
      return render_template('doctor_login.html',form=form)
@@ -223,13 +242,14 @@ def logout_page():
 @login_required
 def user_table_page():
     users = User.query.all()
-    return render_template('user_table.html', users=users)
+    user_count = User.query.count()
+    return render_template('user_table.html', users=users,user_count=user_count)
 
 # -----------------------------------------------------------------------------------------------------------------------
 # 评论系统当前药物显示
-@app.route('/notion',methods=['GET','POST'])
-def notion_page():
-    items = Item.query.all()
+@app.route('/outlook',methods=['GET','POST'])
+def outlook_page():
+    # item_name = Item.query.filter_by(id=Item.id).first()
     items = Item.query.filter_by(name="蒙脱石散").first()
     comment = Comment.query.filter_by(item_id=items.id).order_by(Comment.created_at.desc()).all()
     # update_item_form = UpdateItemForm()
@@ -249,13 +269,31 @@ def notion_page():
     #     except IntegrityError:
     #         db.session.rollback()
     #         flash("此药品已经已存在", category="danger")
-    return render_template('notion.html',item=items,comments=comment)
+    return render_template('outlook.html',item=items,comments=comment)
+
+
+@app.route('/comments/<int:item_id>',methods=['GET','POST'])
+def comments_page(item_id):
+    # items = Item.query.all()
+    items = Item.query.filter_by(id=item_id).first()
+    comments = Comment.query.filter_by(item_id=items.id).order_by(Comment.created_at.desc()).all()
+    comment_count = Comment.query.filter_by(item_id=item_id).count()
+    return render_template('comment.html',item=items,comments=comments,comment_count=comment_count)
+
+
+@app.route('/item/<int:item_id>')  # 定义货物的view视图
+def view_item(item_id):
+    item = Item.query.get_or_404(item_id)
+    comments = Comment.query.filter_by(item_id=item_id).order_by(Comment.created_at.desc()).all()
+    return render_template('item_details.html', item=item, comments=comments)
 # 增加评论系统
-@app.route('/api/comments/<int:item_id>', methods=['GET','POST'])
+@app.route('/api/comments/<int:item_id>', methods=['POST'])
 @login_required
-def post_comment():
+def post_comment(item_id):
     data = request.get_json()
     comment_text = data.get('comment_text')
+    item_id = item_id
+
     if not comment_text:
         return jsonify({'message': '评论内容不能为空'}), 400
     if not item_id:
@@ -284,16 +322,16 @@ def post_comment():
         'created_at': new_comment.created_at.isoformat()
     }), 201
 # 删除评论
-# @app.route('/api/comments/<int:comment_id>', methods=['DELETE'])
-# @login_required
-# def delete_comment(comment_id):
-#     comment = Comment.query.get_or_404(comment_id)
-#     if comment.user_id != current_user.id:
-#         return jsonify({'message': '你没有权限删除这个评论'}), 403
+@app.route('/api/comments/<int:comment_id>', methods=['DELETE'])
+@login_required
+def delete_comment(comment_id):
+    comment = Comment.query.get_or_404(comment_id)
+    if comment.user_id != current_user.id:
+        return jsonify({'message': '你没有权限删除这个评论'}), 403
 
-#     db.session.delete(comment)
-#     db.session.commit()
-#     return jsonify({'message': '评论已删除'}), 200
+    db.session.delete(comment)
+    db.session.commit()
+    return jsonify({'message': '你还是删除了你的真心好评'}), 200
 # -----------------------------------------------------------------------------------------------------------------------
 # 更新货物
 @app.route('/update_item/<int:item_id>', methods=['GET', 'POST'])
@@ -302,7 +340,7 @@ def update_item(item_id):
     item = Item.query.get_or_404(item_id)
     # if current_user.id == current_user.admin or item.owner == current_user.id:
     # # 判断是否是管理员或者物品的拥有者
-    if True:
+    if True:   # 暂时没有判断
         if request.method == 'POST':
             item.name = request.form.get('item_name')
             item.price = request.form.get('item_price')
@@ -375,3 +413,14 @@ def admin_page():
 
 
 # -----------------------------------------------------------------------------------------------------------------------
+@app.route('/buy/<int:item_id>', methods=['POST'])
+@login_required
+def buy_item(item_id):
+    item = Item.query.get_or_404(item_id)
+    quantity = request.form.get('quantity', type=int, default=1)
+
+    try:
+        item.buy(current_user, quantity)
+        return jsonify({'message': f'成功购买 {quantity} 个 {item.name}！'})
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400

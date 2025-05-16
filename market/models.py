@@ -18,7 +18,6 @@ class User(db.Model,UserMixin):
 # backreference
 
 
-
     @property
     def prettier_budget(self):
         if len(str(self.budget))>=4 and len(str(self.budget)) < 7 : #超过三位，中间显示" , "
@@ -28,7 +27,6 @@ class User(db.Model,UserMixin):
         else:
             return f"{self.budget}元"
         
-
 
     @property
     def password(self):
@@ -58,7 +56,7 @@ class Item(db.Model):
     quantity =db.Column(db.Integer(),nullable=False,default=100)
     specification =db.Column(db.String(length=30),nullable=False,unique=False)
     owner = db.Column(db.Integer(),db.ForeignKey('user.id')) # 外键连接用户id
-
+  #使用activity表来记录购买信息
     def buy(self, user, item):
         self.owner = user.id  # 设置商品的所有者
         user.budget -= item.price  # 扣除用户的预算
@@ -75,7 +73,7 @@ class Item(db.Model):
         db.session.commit()
     # created_at = db.Column(db.DateTime, default=datetime.now)
     # def time_now(self):
-    #     return datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        # return datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
 # class Register(db.Model):
 #     user_name = db.Column(db.String(length=50),nullable=False,unique=True)
@@ -110,3 +108,16 @@ class Doctor(db.Model,UserMixin):
 
     def check_password_correction(self, attempted_password):
         return self.doctor_id_number == attempted_password  # 直接比较明文密码
+
+
+# 用户活动表
+class Activity(db.Model):
+    __tablename__ = 'activity'
+    purchase_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    item_id = db.Column(db.Integer, db.ForeignKey('item.id'), nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)    # 存放用户item购买数量
+    timestamp = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp())
+
+
+

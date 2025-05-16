@@ -4,5 +4,28 @@
 {% endblock %}
 
 {% block content %}
-
+    <h2 class="text-2xl font-bold mt-12 mb-6 text-gray-800">库存商品</h2>
+    <h2 class="text-2xl font-bold mt-12 mb-6 text-gray-800">库存数量：{{ owned_item_count }}</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for item in owned_items %}
+        <div class="bg-white rounded-xl shadow-md p Ascendingly p-6 flex flex-col justify-between transition-all duration-300 hover:shadow-xl hover:scale-[1.02]">
+            <div>
+                <h3 class="text-xl font-semibold mb-3 text-gray-800">{{ item.name }}</h3>
+                <p class="text-gray-600 mb-2">价格: <span class="text-blue-600 font-semibold">{{ item.price }}</span> 元</p>
+                <p class="text-gray-600 mb-2">库存: <span class="text-green-600 font-semibold">{{ item.quantity }}</span> 份</p>
+                <p class="text-gray-500 text-sm mt-2 line-clamp-2">{{ item.description }}</p>
+            </div>
+            <div class="mt-4">
+                <form method="POST" action="">
+                    <input type="hidden" name="sold_item" value="{{ item.name }}">
+                    <button type="submit"
+                            class="w-full bg-blue-200 hover:bg-blue-300 text-gray-800 font-semibold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition-colors duration-200">
+                        <i class="fas fa-trash-alt mr-2"></i>
+                        下架
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
 {% endblock %}

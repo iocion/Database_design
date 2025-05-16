@@ -3,7 +3,6 @@
 <div class="container mx-auto px-4 py-12 bg-gradient-to-b from-gray-50 to-white min-h-screen">
     <h1 class="text-4xl font-extrabold mb-8 text-center text-gray-900 tracking-tight">药品市场</h1>
 
-    <!-- Search Section -->
     <div class="bg-white rounded-xl shadow-lg p-8 mb-12 transition-all duration-300 hover:shadow-xl">
         <h2 class="text-2xl font-bold mb-6 text-gray-800">查询药品</h2>
         <div class="flex flex-col sm:flex-row gap-4">
@@ -22,13 +21,24 @@
             <p class="text-gray-600 mb-2" id="itemBarcode"></p>
             <p class="text-gray-600 mb-2" id="itemDescription"></p>
             <p class="text-gray-600 mb-2" id="itemQuantity"></p>
-            <div id="itemPurchase" class="mt-4">
+            <div id="itemPurchase" class="mt-4 flex justify-between items-center">
+                <form method="POST" action="">
+                    <input type="hidden" name="purchase_item" id="purchaseItemNameInput">
+                    <button type="submit"
+                            class="bg-blue-200 hover:bg-blue-300 text-gray-800 font-semibold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition-colors duration-200">
+                        <i class="fas fa-shopping-cart mr-2"></i>
+                        购买
+                    </button>
+                </form>
+                <a id="viewCommentsButton" href="#"
+                   class="bg-green-200 hover:bg-green-300 text-gray-800 font-semibold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75 transition-colors duration-200">
+                    查看评论
+                </a>
             </div>
         </div>
     </div>
-
-    <!-- Available Items Section -->
     <h2 class="text-2xl font-bold mb-6 text-gray-800">可购买的药品</h2>
+    <h2 class="text-2xl font-bold mb-6 text-gray-800">仓库药品总数量:{{ item_count }}种</h2>
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {% for item in items %}
         <div class="bg-white rounded-xl shadow-md p-6 flex flex-col justify-between transition-all duration-300 hover:shadow-xl hover:scale-[1.02]">
@@ -39,7 +49,7 @@
                 <p class="text-gray-600 mb-2">库存: <span class="text-green-600 font-semibold">{{ item.quantity }}</span> 份</p>
                 <p class="text-gray-500 text-sm mt-2 line-clamp-2">{{ item.description }}</p>
             </div>
-            <div class="mt-4">
+            <div class="mt-4 flex justify-between items-center">
                 <form method="POST" action="">
                     <input type="hidden" name="purchase_item" value="{{ item.name }}">
                     <button type="submit"
@@ -48,36 +58,16 @@
                         购买
                     </button>
                 </form>
+                <a href="/comments/{{item.id}}"
+                   class="bg-green-200 hover:bg-green-300 text-gray-800 font-semibold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75 transition-colors duration-200">
+                    查看评论
+                </a>
             </div>
         </div>
         {% endfor %}
     </div>
 
-    <!-- Owned Items Section -->
-    <h2 class="text-2xl font-bold mt-12 mb-6 text-gray-800">我售卖的药品</h2>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {% for item in owned_items %}
-        <div class="bg-white rounded-xl shadow-md p Ascendingly p-6 flex flex-col justify-between transition-all duration-300 hover:shadow-xl hover:scale-[1.02]">
-            <div>
-                <h3 class="text-xl font-semibold mb-3 text-gray-800">{{ item.name }}</h3>
-                <p class="text-gray-600 mb-2">价格: <span class="text-blue-600 font-semibold">{{ item.price }}</span> 元</p>
-                <p class="text-gray-600 mb-2">库存: <span class="text-green-600 font-semibold">{{ item.quantity }}</span> 份</p>
-                <p class="text-gray-500 text-sm mt-2 line-clamp-2">{{ item.description }}</p>
-            </div>
-            <div class="mt-4">
-                <form method="POST" action="">
-                    <input type="hidden" name="sold_item" value="{{ item.name }}">
-                    <button type="submit"
-                            class="w-full bg-blue-200 hover:bg-blue-300 text-gray-800 font-semibold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition-colors duration-200">
-                        <i class="fas fa-trash-alt mr-2"></i>
-                        下架
-                    </button>
-                </form>
-            </div>
-        </div>
-        {% endfor %}
     </div>
-</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -87,9 +77,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const itemNameDisplay = document.getElementById('itemName');
     const itemPriceDisplay = document.getElementById('itemPrice');
     const itemBarcodeDisplay = document.getElementById('itemBarcode');
-    const itemDescriptionDisplay = document.getElementBy ('itemDescription');
+    const itemDescriptionDisplay = document.getElementById('itemDescription'); // 修正了这里
     const itemQuantityDisplay = document.getElementById('itemQuantity');
     const itemPurchaseDiv = document.getElementById('itemPurchase');
+    const purchaseItemNameInput = document.getElementById('purchaseItemNameInput');
+    const viewCommentsButton = document.getElementById('viewCommentsButton');
+
 
     queryItemButton.addEventListener('click', function() {
         const itemName = searchItemNameInput.value.trim();
@@ -115,16 +108,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 itemBarcodeDisplay.textContent = `商品编号: ${data.barcode}`;
                 itemDescriptionDisplay.textContent = `描述: ${data.description}`;
                 itemQuantityDisplay.textContent = `数量: ${data.quantity} 份`;
-                itemPurchaseDiv.innerHTML = `
-                    <form method="POST" action="">
-                        <input type="hidden" name="purchase_item" value="${data.name}">
-                        <button type="submit"
-                                class="w-full bg-blue-200 hover:bg-blue-300 text-gray-800 font-semibold py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 transition-colors duration-200">
-                            <i class="fas fa-shopping-cart mr-2"></i>
-                            立即购买
-                        </button>
-                    </form>
-                `;
+                purchaseItemNameInput.value = data.name; //设置input的值
+                viewCommentsButton.href = `/comments/${data.id}`;
                 itemInfoCard.style.display = 'block';
             })
             .catch(error => {
