@@ -6,38 +6,37 @@
 
 {% block content %}
 {#
-  Refactoring the User Page content to use Tailwind CSS classes
-  Matching the theme of the base_template_tailwind
+    Refactoring the User Page content to use Tailwind CSS classes
+    Matching the theme of the base_template_tailwind
 #}
 
 {# Removed the commented-out original HTML and redundant body/head tags #}
 
-<div class="container mx-auto px-4 py-8"> {# Container for centering and padding #}
+<div class="container mx-auto px-4 py-8">
+    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">用户列表</h2>
 
-    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">用户列表</h2> {# Heading style #}
-     <h5 class="text-xl font-semibold mb-3 text-gray-800">用户总数为<strong>{{ user_count }}</strong>人</h5> {# Heading style #}
-    <div class="flex flex-wrap -mx-4"> {# Flex container for layout, negative margin to offset padding #}
+    <div class="mb-4 text-center">
+        <button onclick="window.location.href='/admin';" class="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">
+            点击注册新医生
+        </button>
+    </div>
 
-        {# User List Section (approx. 2/3 width on medium and large screens, adjust if needed) #}
-        {# Keeping it full width for simplicity based on the original structure #}
-        <div class="w-full px-4 mb-8"> {# Full width, padding, margin-bottom #}
-            <h5 class="text-xl font-semibold mb-3 text-gray-800">用户信息如下</h5> {# Heading style #}
-
-            {# Grid for user cards #}
-            {# Using a responsive grid, similar to the market page #}
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"> {# Responsive grid with gaps #}
+    <h5 class="text-xl font-semibold mb-3 text-gray-800">用户总数为<strong>{{ user_count }}</strong>人</h5>
+    <div class="flex flex-wrap -mx-4">
+        <div class="w-full px-4 mb-8">
+            <h5 class="text-xl font-semibold mb-3 text-gray-800">用户信息如下</h5>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {% for user in users %}
-                <div class="col"> {# Keeping col for structure, actual grid handled by parent #}
-                    <div class="bg-white h-full rounded-lg shadow-sm p-4 flex flex-col justify-between"> {# Card style #}
-                        <div> {# Container for card body content #}
-                            <h6 class="text-lg font-semibold mb-2 text-gray-800">用户名：{{ user.username }}</h6> {# Card title style #}
-                            <h6 class="text-sm mb-2 text-gray-600">用户邮箱： {{ user.email_address }}</h6> {# Card subtitle style #}
-                            <p class="text-gray-700 text-sm font-bold">余额:{{ user.prettier_budget }}</p> {# Balance display style #}
+                <div class="col">
+                    <div class="bg-white h-full rounded-lg shadow-sm p-4 flex flex-col justify-between">
+                        <div>
+                            <h6 class="text-lg font-semibold mb-2 text-gray-800">用户名：{{ user.username }}</h6>
+                            <h6 class="text-sm mb-2 text-gray-600">用户邮箱： {{ user.email_address }}</h6>
+                            <p class="text-gray-700 text-sm font-bold">余额:{{ user.prettier_budget }}</p>
                         </div>
-                        {# Add a button for "更多信息" if needed, styled with Tailwind #}
                         {#
                         <div class="flex justify-end items-center mt-4">
-                             <button class="btn-outline-custom-tailwind text-blue-600 hover:text-white hover:bg-blue-600 text-sm py-1 px-3">
+                            <button class="btn-outline-custom-tailwind text-blue-600 hover:text-white hover:bg-blue-600 text-sm py-1 px-3">
                                 更多信息
                             </button>
                         </div>
@@ -47,10 +46,6 @@
                 {% endfor %}
             </div>
         </div>
-
-        {# The original snippet only had the user list section within the row #}
-        {# If you had another column (col-md-4) with other content, you would add it here #}
-
     </div>
 </div>
 

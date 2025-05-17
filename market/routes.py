@@ -417,7 +417,7 @@ def admin_page():
             db.session.commit()
             # login_user(doctor_to_create)
             flash(f'{doctor_to_create.doctor_name}医生', category='success')
-            return redirect(url_for('index_page'))
+            return redirect(url_for('doctor_page'))
         except IntegrityError:
             db.session.rollback()
             flash("该用户已存在", category="danger")
