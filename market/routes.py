@@ -10,6 +10,7 @@ from openai import OpenAI  # 加入百度的大模型deepseekR8
 import markdown
 import re # 用来进行文本处理
 import wraps
+from datetime import timedelta,datetime
 # from market import admin_required  # 定义管理元用户
 # from mistralai.client import MistralClient
 
@@ -147,29 +148,29 @@ def query_item_by_id(item_id):
         return jsonify({'error':'未找到相关药品'}),404
 # ------------------------------------------------------------------------------------------------------------------------
 # 登录管理员账号
-@app.route('/admin_login',methods=['GET','POST'])
-def doctor_login_page():
-     form = Doctor_LoginForm()
-     if form.validate_on_submit():
-          admin_user = Doctor.query.filter_by(doctor_name=form.doctor_name.data).first()
-          if admin_user and admin_user.check_password_correction(
-               attempted_password=form.doctor_id_number.data                    
-               ):
-                login_user(admin_user)
-                flash(
-                    f'欢迎{admin_user.doctor_name}医生',category='success'
-                )
-                return redirect(url_for('outlook_page'))
-          else:
-               flash('密码错误或者用户不存在',category='danger')
-     return render_template('doctor_login.html',form=form)
+# @app.route('/admin_login',methods=['GET','POST'])
+# def doctor_login_page():
+#      form = Doctor_LoginForm()
+#      if form.validate_on_submit():
+#           admin_user = Doctor.query.filter_by(doctor_name=form.doctor_name.data).first()
+#           if admin_user and admin_user.check_password_correction(
+#                attempted_password=form.doctor_id_number.data                    
+#                ):
+#                 login_user(admin_user)
+#                 flash(
+#                     f'欢迎{admin_user.doctor_name}医生',category='success'
+#                 )
+#                 return redirect(url_for('outlook_page'))
+#           else:
+#                flash('密码错误或者用户不存在',category='danger')
+#      return render_template('doctor_login.html',form=form)
 # 管理员登出部分
-# @app.route("/admin_logout")
-# @login_required
-# def logout_page(): 
-#     logout_user()
-#     flash("已经成功退出登录", category="info")
-#     return redirect(url_for('index_page'))
+@app.route("/admin_logout")
+@login_required
+def admin_logout_page(): 
+    logout_user()
+    flash("已经成功退出登录", category="info")
+    return redirect(url_for('index_page'))
 
 # ----------------------------------------------------------------------------------------------------------------------
 # 用户注册部分
@@ -227,6 +228,39 @@ def login_page():
                flash('密码错误或者用户不存在',category='danger')
      return render_template('login.html',form=form)
 
+# doctor：管理员登录部分
+@app.route('/doctor_login', methods=['GET', 'POST'])
+def doctor_login_page():
+    form = Doctor_LoginForm()
+    if form.validate_on_submit():
+        admin_user = Doctor.query.filter_by(doctor_name=form.doctor_name.data).first()
+        if admin_user and admin_user.check_password_correction(
+                attempted_password=form.doctor_id_number.data):
+            login_user(admin_user)
+            flash(f'欢迎 {admin_user.doctor_name} 医生', category='success')
+            return redirect(url_for('doctor_page'))
+        else:
+            flash('密码错误或者用户不存在', category='danger')
+    return render_template('doctor_login.html', form=form)
+# 管理员主界面
+
+@app.route('/admin_home')
+@login_required
+def doctor_page():
+    item_count = Item.query.count()
+    user_count = User.query.count()
+    doctor_count = Doctor.query.count()
+    comment_count = Comment.query.count()
+    return render_template('doctor_home.html',item_count=item_count,user_count=user_count,doctor_count=doctor_count,comment_count= comment_count)
+
+@app.route('/profile')
+def profile():
+    if isinstance(current_user, User):
+        return  f'当前登录用户是 User: {current_user.username}'
+    elif isinstance(current_user, Doctor):
+         return  f'当前登录用户是 Doctor: {current_user.doctor_name}'
+    else:
+        return  '未登录用户'
 # -----------------------------------------------------------------------------------------------------------------------
 # 用户登出部分
 @app.route("/logout")
@@ -252,24 +286,14 @@ def outlook_page():
     # item_name = Item.query.filter_by(id=Item.id).first()
     items = Item.query.filter_by(name="蒙脱石散").first()
     comment = Comment.query.filter_by(item_id=items.id).order_by(Comment.created_at.desc()).all()
-    # update_item_form = UpdateItemForm()
-    # if update_item_form.validate_on_submit():
-    #     try:
-    #         item_to_insert = Item(
-    #             name=update_item_form.item_name.data,
-    #             price=update_item_form.item_price.data,
-    #             barcode=update_item_form.item_barcode.data,
-    #             description=update_item_form.item_description.data
-    #         )
-    #         db.session.add(item_to_insert)
-    #         db.session.commit()
-    #         login_user(item_to_insert)
-    #         flash(f'{item_to_insert.data}成功录入', category='success')
-    #         return redirect(url_for('index_page')) # 跳转页面
-    #     except IntegrityError:
-    #         db.session.rollback()
-    #         flash("此药品已经已存在", category="danger")
     return render_template('outlook.html',item=items,comments=comment)
+
+@app.route('/doctor_outlook',methods=['GET','POST'])
+def doctor_outlook():
+    items = Item.query.filter_by(name="蒙脱石散").first()
+    comment = Comment.query.filter_by(item_id=items.id).order_by(Comment.created_at.desc()).all()
+    return render_template('doctor_outlook.html',item=items,comments=comment)
+
 
 
 @app.route('/comments/<int:item_id>',methods=['GET','POST'])
@@ -279,7 +303,6 @@ def comments_page(item_id):
     comments = Comment.query.filter_by(item_id=items.id).order_by(Comment.created_at.desc()).all()
     comment_count = Comment.query.filter_by(item_id=item_id).count()
     return render_template('comment.html',item=items,comments=comments,comment_count=comment_count)
-
 
 @app.route('/item/<int:item_id>')  # 定义货物的view视图
 def view_item(item_id):
@@ -378,7 +401,8 @@ def delete_item(item_id):
 
 # -----------------------------------------------------------------------------------------------------------------------
 # 创建管理员账号
-@app.route('/admin/123456',methods=['GET','POST'])
+@app.route('/admin',methods=['GET','POST'])
+@login_required
 def admin_page():
     doctor_form = DoctorForm()
     if doctor_form.validate_on_submit():
@@ -424,3 +448,55 @@ def buy_item(item_id):
         return jsonify({'message': f'成功购买 {quantity} 个 {item.name}！'})
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
+    
+
+
+
+
+# @app.route('/add_item', methods=['GET', 'POST'])
+# def add_item():
+#     form = RegisterForm()
+
+#     if form.validate_on_submit():
+#         try:
+#             user_to_create = User(
+#                 username=form.username.data,
+#                 email_address=form.email_address.data,
+#                 password=form.password1.data
+#             )
+#             db.session.add(user_to_create)
+#             db.session.commit()
+#             login_user(user_to_create)
+#             flash(f'{user_to_create.username}成功注册！！', category='success')
+#             return redirect(url_for('index_page'))
+#         except IntegrityError:
+#             db.session.rollback()
+#             flash("邮箱已存在", category="danger")
+#     # 处理表单验证错误（无论是否提交成功）
+#     if form.errors:
+#         for field_name, err_msgs in form.errors.items():
+#             for err_msg in err_msgs:
+#                 print(f"Field: {field_name}, Error: {err_msg}")
+#                 if 'Username already exists' in err_msg and 'Field must be equal to' not in err_msg:
+#                     flash("用户名已经存在!", category="danger")
+#                 elif 'Field must be equal to' in err_msg and 'Username already exists' not in err_msg:
+#                     flash("两次密码输入不相同!", category="danger")
+#                 elif 'Username already exists' in err_msg and 'Field must be equal to'  in err_msg:
+#                     flash("用户名已经存在,两次密码输入不相同!", category="danger")
+#                 else:
+#                     flash(f"{err_msg}", category="danger")
+#     # 统一返回渲染的模板（无论是否有错误）
+#     return render_template('register.html', form=form)
+
+
+# @app.template_filter('add_hours')
+# def add_hours_filter(dt, hours):
+#     return dt + timedelta(hours=hours)
+
+# app.jinja_env.filters['add_hours'] = add_hours_filter
+
+@app.template_filter('add_hours')
+def add_hours_filter(dt, hours):
+    if isinstance(dt, datetime.datetime):
+        return dt + timedelta(hours=hours)
+    return dt  # 如果不是 datetime 对象，则直接返回

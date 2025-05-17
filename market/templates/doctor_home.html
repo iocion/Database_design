@@ -1,0 +1,177 @@
+{% extends 'doctor_base.html' %}
+{% block title %}
+    管理员页面
+{% endblock %}
+
+
+{% block content %}
+
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>后台数据统计</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif;
+            background-color: #f8f8f8; /* 保留原始背景色 */
+        }
+        #main {
+            width: 90vw; 
+            max-width: 600px;
+            height: 50vh; 
+            min-height: 250px;
+            margin: 10px auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            background-color: #ffffff; /* 容器白色背景 */
+        }
+        .controls {
+            margin: 10px;
+            text-align: center;
+        }
+        .controls button {
+            padding: 8px 16px;
+            margin: 5px;
+            background-color: #007bff; /* 与原始主题一致 */
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .controls button:hover {
+            background-color: #0056b3;
+        }
+        @media (max-width: 600px) {
+            #main {
+                height: 40vh; /* 小屏幕减小高度 */
+            }
+            .controls button {
+                font-size: 12px;
+                padding: 6px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <!-- <button onclick="updateChart(['阿莫西林', '板蓝根', '布洛芬'], [150, 200, 110])">数</button> -->
+    </div>
+    <div id="main"></div>
+
+    <script>
+        // 初始化 ECharts 实例
+        var myChart = echarts.init(document.getElementById('main'));
+
+        // 图表配置项
+        function getChartOption(names, sales) {
+            return {
+                title: {
+                    text: '后台数据统计',
+                    textStyle: {
+                        color: '#333',
+                        fontWeight: 'bold',
+                        fontSize: 16
+                    },
+                    top: '2%',
+                    left: 'center'
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { type: 'shadow' },
+                    backgroundColor: 'rgba(255,255,255,0.9)',
+                    borderColor: '#ccc',
+                    padding: 6,
+                    textStyle: {
+                        color: '#333',
+                        fontSize: 11
+                    }
+                },
+                legend: {
+                    data: ['数据'],
+                    orient: 'horizontal',
+                    left: 'center',
+                    top: '10%',
+                    itemWidth: 14,
+                    itemHeight: 8,
+                    textStyle: {
+                        fontSize: 11,
+                        color: '#555'
+                    }
+                },
+                xAxis: {
+                    data: names,
+                    axisLabel: {
+                        color: '#555',
+                        fontSize: 10,
+                        rotate: 0,
+                        interval: 0,
+                        formatter: function(value) {
+                            return value.length > 5 ? value.slice(0, 5) + '...' : value;
+                        }
+                    },
+                    axisLine: { lineStyle: { color: '#ccc' } },
+                    axisTick: { lineStyle: { color: '#ccc' } }
+                },
+                yAxis: {
+                    axisLabel: {
+                        color: '#555',
+                        fontSize: 10
+                    },
+                    axisLine: { lineStyle: { color: '#ccc' } },
+                    axisTick: { lineStyle: { color: '#ccc' } },
+                    splitLine: { lineStyle: { color: ['#eee'] } }
+                },
+                series: [{
+                    name: '',
+                    type: 'bar',
+                    data: sales,
+                    itemStyle: {
+                        color: function(params) {
+                            var colorList = ['#007bff', '#40c4ff', '#80deea', '#ff8a65', '#ffcc80'];
+                            return colorList[params.dataIndex % colorList.length];
+                        },
+                        emphasis: {
+                            shadowBlur: 6,
+                            shadowColor: 'rgba(0,0,0,0.3)',
+                            opacity: 1
+                        }
+                    },
+                    barWidth: '50%',
+                    label: { show: false }
+                }],
+                animationType: 'scale',
+                animationEasing: 'elasticOut',
+                animationDelay: 50,
+                animationDuration: 600
+            };
+        }
+
+        // 初始化图表
+        myChart.setOption(getChartOption(["药品数量", "用户数量","医生数量","评论总数"], [{{item_count}}, {{user_count}},{{doctor_count}},{{comment_count}}]));
+        myChart.setOption(getCharOption(["用户数量"],[1230]))
+        // 更新图表函数
+        function updateChart(names, sales) {
+            if (!names || !sales || names.length !== sales.length) {
+                alert('数据格式错误：名称和销量数组长度必须一致');
+                return;
+            }
+            myChart.setOption(getChartOption(names, sales));
+        }
+
+        // 自适应窗口大小
+        window.addEventListener('resize', function() {
+            myChart.resize();
+        });
+    </script>
+</body>
+</html>
+
+{% endblock %}

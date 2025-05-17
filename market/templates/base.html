@@ -160,7 +160,6 @@
                     <li><a class="nav-link-soft" href="{{ url_for('market_page') }}">药品市场</a></li> 
                     <li><a class="nav-link-soft" href="{{ url_for('outlook_page') }}">查询药品</a></li> 
                     <li><a class="nav-link-soft" href="{{ url_for('storage_page') }}">库存</a></li> 
-                    <li><a class="nav-link-soft" href="{{ url_for('user_table_page') }}">用户列表</a></li> {# Applied custom link class #}
                 </ul>
 
                 {% if current_user.is_authenticated %}
@@ -188,7 +187,6 @@
                 <a class="nav-link-soft" href="{{ url_for('outlook_page') }}">药品市场</a>
                 <a class="nav-link-soft" href="{{ url_for('market_page') }}">商店</a>
                 <a class="nav-link-soft" href="{{ url_for('storage_page') }}">库存</a>
-                <a class="nav-link-soft" href="{{ url_for('user_table_page') }}">用户列表</a>
                     <a class="text-yellow-400 flex items-center" href="#">
                         <i class="fas fa-coins mr-1"></i>{{ current_user.prettier_budget }}
                     </a>
@@ -199,7 +197,6 @@
             <a class="nav-link-soft" href="{{ url_for('outlook_page') }}">药品市场</a>
             <a class="nav-link-soft" href="{{ url_for('market_page') }}">商店</a>
             <a class="nav-link-soft" href="{{ url_for('storage_page') }}">库存</a>
-            <a class="nav-link-soft" href="{{ url_for('user_table_page') }}">用户列表</a>
                 <a class="nav-link-soft" href="{{ url_for('login_page') }}">登录</a>
                 <a class="nav-link-soft" href="{{ url_for('register_page') }}">注册</a>
             {% endif %}

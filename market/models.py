@@ -3,9 +3,15 @@ from market import bcrypt
 from flask_login import UserMixin
 from datetime import datetime
 # python 的代码逻辑
+
+
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    user = User.query.get(int(user_id))
+    if user:
+        return user
+    else:
+        return Doctor.query.get(int(user_id))
 
 # 用户表
 class User(db.Model,UserMixin):
@@ -104,7 +110,7 @@ class Doctor(db.Model,UserMixin):
     doctor_phone = db.Column(db.String(11), nullable=False, unique=True)  # 医生电话，不能为空，唯一，长度11
     doctor_email = db.Column(db.String(255), nullable=False, unique=True)  # 医生邮箱，不能为空，唯一，符合邮箱格式，最大长度255
     created_at = db.Column(db.TIMESTAMP, server_default=db.func.now())  # 创建时间，默认为当前时间
-    updated_at = db.Column(db.TIMESTAMP, server_default=db.func.now(), onupdate=db.func.now())  # 更新时间，默认为当前时间，更新时自动更新
+    updated_at = db.Column(db.TIMESTAMP, server_default=db.func.now(), onupdate=db.func.now())# 更新时间，默认为当前时间，更新时自动更新
 
     def check_password_correction(self, attempted_password):
         return self.doctor_id_number == attempted_password  # 直接比较明文密码
@@ -118,6 +124,9 @@ class Activity(db.Model):
     item_id = db.Column(db.Integer, db.ForeignKey('item.id'), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)    # 存放用户item购买数量
     timestamp = db.Column(db.DateTime, nullable=False, default=db.func.current_timestamp())
+    
+    # def buy():
 
 
+    # def sell():
 
