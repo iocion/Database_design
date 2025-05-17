@@ -2,7 +2,7 @@
 from market import app
 from flask import render_template,redirect,url_for,flash,get_flashed_messages, request,jsonify
 from market.models import Item,User,Comment,Doctor
-from market.forms import RegisterForm,LoginForm,PurchaseItemForm,SellItemForm,UpdateItemForm,DoctorForm,Doctor_LoginForm
+from market.forms import RegisterForm,LoginForm,PurchaseItemForm,SellItemForm,UpdateItemForm,DoctorForm,Doctor_LoginForm,AddItemForm
 from sqlalchemy.exc import IntegrityError
 from market import db
 from flask_login import login_user,login_required,logout_user,current_user
@@ -70,6 +70,7 @@ def index_page():
 def storage_page():
         items = Item.query.filter_by(owner=None)   
         owned_items = Item.query.filter_by(owner=current_user.id)
+        # 在库存部分显示已经在库存中的数量
         # owned_item_count = Item.query.filter(Item.owner!=None).count()
         owned_item_count = Item.query.filter_by(owner=current_user.id).count()
         return render_template('storage.html',items=items,owned_items=owned_items,owned_item_count=owned_item_count)
@@ -87,10 +88,11 @@ def market_page():
     if request.method =='POST': #解决js表单每一次跳出,request不能分清get和post方法
         purchased_item = request.form.get('purchase_item')
         p_item_object = Item.query.filter_by(name=purchased_item).first()
+        item_number = 3  # 这里返回从前端设置的item_number
         if p_item_object:
                 if current_user.can_purchase(p_item_object):    
                     if current_user.budget >= p_item_object.price:   # 判断金额是否大于budget
-                        p_item_object.buy(current_user,p_item_object)
+                        p_item_object.buy(current_user,p_item_object, item_number)   # 增加item_number 用来记录用户购买数量
                         flash(f"购买成功",category="success")
                     else:
                         missing_money = p_item_object.price-current_user.budget
@@ -105,7 +107,7 @@ def market_page():
         return redirect(url_for('market_page'))  
     
     if request.method == 'GET':
-        items = Item.query.filter_by(owner=None)
+        items = Item.query.all()
         owned_items = Item.query.filter_by(owner=current_user.id)
         return render_template('market.html',item_count=item_count,items=items,purchase_form=purchase_form,owned_items=owned_items,selling_form=selling_form)
     
@@ -251,7 +253,13 @@ def doctor_page():
     user_count = User.query.count()
     doctor_count = Doctor.query.count()
     comment_count = Comment.query.count()
-    return render_template('doctor_home.html',item_count=item_count,user_count=user_count,doctor_count=doctor_count,comment_count= comment_count)
+    user_comment_counts = db.session.query(User.id, User.username, db.func.count(Comment.id).label('comment_count')) \
+    .join(Comment, User.id == Comment.user_id) \
+    .group_by(User.id, User.username) \
+    .order_by(db.desc('comment_count')) \
+    .all()
+    # print(user_comment_counts)
+    return render_template('doctor_home.html',item_count=item_count,user_count=user_count,doctor_count=doctor_count,comment_count= comment_count,user_comment_counts=user_comment_counts)
 
 @app.route('/profile')
 @login_required
@@ -454,40 +462,39 @@ def buy_item(item_id):
 
 
 
-# @app.route('/add_item', methods=['GET', 'POST'])
-# def add_item():
-#     form = RegisterForm()
+@app.route('/add_item', methods=['GET', 'POST'])
+@login_required
+def add_item():
+    form = AddItemForm()
+    if form.validate_on_submit():
+        try:
+            item_to_create = Item(
+                name=form.item_name.data,
+                price=form.item_price.data,
+                barcode=form.item_barcode.data,
+                description=form.item_description.data
+            )
+            db.session.add(item_to_create)
+            db.session.commit()
+            flash(f'{item_to_create.name} 成功添加！！', category='success')
+            return redirect(url_for('admin_page'))  # 替换为你的管理员页面路由
+        except IntegrityError:
+            db.session.rollback()
+            flash("添加药品失败，可能条形码或名称已存在", category="danger")
 
-#     if form.validate_on_submit():
-#         try:
-#             user_to_create = User(
-#                 username=form.username.data,
-#                 email_address=form.email_address.data,
-#                 password=form.password1.data
-#             )
-#             db.session.add(user_to_create)
-#             db.session.commit()
-#             login_user(user_to_create)
-#             flash(f'{user_to_create.username}成功注册！！', category='success')
-#             return redirect(url_for('index_page'))
-#         except IntegrityError:
-#             db.session.rollback()
-#             flash("邮箱已存在", category="danger")
-#     # 处理表单验证错误（无论是否提交成功）
-#     if form.errors:
-#         for field_name, err_msgs in form.errors.items():
-#             for err_msg in err_msgs:
-#                 print(f"Field: {field_name}, Error: {err_msg}")
-#                 if 'Username already exists' in err_msg and 'Field must be equal to' not in err_msg:
-#                     flash("用户名已经存在!", category="danger")
-#                 elif 'Field must be equal to' in err_msg and 'Username already exists' not in err_msg:
-#                     flash("两次密码输入不相同!", category="danger")
-#                 elif 'Username already exists' in err_msg and 'Field must be equal to'  in err_msg:
-#                     flash("用户名已经存在,两次密码输入不相同!", category="danger")
-#                 else:
-#                     flash(f"{err_msg}", category="danger")
-#     # 统一返回渲染的模板（无论是否有错误）
-#     return render_template('register.html', form=form)
+    if form.errors:
+        for field_name, err_msgs in form.errors.items():
+            for err_msg in err_msgs:
+                print(f"Field: {field_name}, Error: {err_msg}")
+                if '药品名称已经存在' in err_msg and '药品条形码已经存在' not in err_msg:
+                    flash("药品名称已经存在!", category="danger")
+                elif '药品条形码已经存在' in err_msg and '药品名称已经存在' not in err_msg:
+                    flash("药品条形码已经存在!", category="danger")
+                elif '药品名称已经存在' in err_msg and '药品条形码已经存在' in err_msg:
+                    flash("药品名称和条形码均已存在!", category="danger")
+                else:
+                    flash(f"{err_msg}", category="danger")
+    return render_template('doctor_add_item.html', form=form)
 
 
 # @app.template_filter('add_hours')
@@ -495,9 +502,3 @@ def buy_item(item_id):
 #     return dt + timedelta(hours=hours)
 
 # app.jinja_env.filters['add_hours'] = add_hours_filter
-
-@app.template_filter('add_hours')
-def add_hours_filter(dt, hours):
-    if isinstance(dt, datetime.datetime):
-        return dt + timedelta(hours=hours)
-    return dt  # 如果不是 datetime 对象，则直接返回

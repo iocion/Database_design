@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}
+添加药品
+{% endblock %}
+
+{% block content %}
+
+<div class="container mx-auto flex justify-center items-center min-h-screen px-4">
+    <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
+        <div class="flex flex-col items-center">
+            <img class="mb-6 w-24 h-auto rounded-full shadow-md" src="/static/add_item.png" alt="添加药品">
+            <h1 class="text-2xl font-bold mb-6 text-center text-gray-800">添加新药品</h1>
+            <form method="POST" class="w-full space-y-4 text-gray-700">
+                {{ form.hidden_tag() }}
+
+                <div class="form-group">
+                    {{ form.item_name.label(class="block text-sm font-medium text-gray-700") }}
+                    {{ form.item_name(class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm", placeholder="药品名称") }}
+                    {% for error in form.item_name.errors %}
+                        <span class="text-red-500 text-xs italic">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.item_price.label(class="block text-sm font-medium text-gray-700") }}
+                    {{ form.item_price(class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm", placeholder="药品价格") }}
+                    {% for error in form.item_price.errors %}
+                        <span class="text-red-500 text-xs italic">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.item_barcode.label(class="block text-sm font-medium text-gray-700") }}
+                    {{ form.item_barcode(class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm", placeholder="药品条形码") }}
+                    {% for error in form.item_barcode.errors %}
+                        <span class="text-red-500 text-xs italic">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.item_description.label(class="block text-sm font-medium text-gray-700") }}
+                    {{ form.item_description(class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm", placeholder="药品描述", rows="4") }}
+                    {% for error in form.item_description.errors %}
+                        <span class="text-red-500 text-xs italic">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                {{ form.submit(class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500", value="添加药品") }}
+            </form>
+            <div class="mt-4 text-sm text-gray-600">
+                <a href="{{ url_for('admin_page') }}" class="text-blue-500 hover:underline">返回管理页面</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -3,7 +3,6 @@
     管理员页面
 {% endblock %}
 
-
 {% block content %}
 
 <!DOCTYPE html>
@@ -21,9 +20,9 @@
             background-color: #f8f8f8; /* 保留原始背景色 */
         }
         #main {
-            width: 90vw; 
+            width: 90vw;
             max-width: 600px;
-            height: 50vh; 
+            height: 50vh;
             min-height: 250px;
             margin: 10px auto;
             border: 1px solid #e0e0e0;
@@ -49,6 +48,41 @@
         .controls button:hover {
             background-color: #0056b3;
         }
+        .comment-list-container {
+            width: 90vw;
+            max-width: 800px; /* 调整列表容器宽度 */
+            margin: 20px auto; /* 增加一些外边距 */
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+        }
+        .comment-list-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 5px;
+        }
+        .comment-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .comment-item:last-child {
+            border-bottom: none;
+        }
+        .username {
+            font-weight: bold;
+            color: #555;
+        }
+        .comment-count {
+            color: #007bff;
+        }
         @media (max-width: 600px) {
             #main {
                 height: 40vh; /* 小屏幕减小高度 */
@@ -57,14 +91,33 @@
                 font-size: 12px;
                 padding: 6px 12px;
             }
+            .comment-list-container {
+                padding: 10px;
+            }
+            .comment-item {
+                font-size: 0.9em;
+            }
         }
     </style>
 </head>
 <body>
     <div class="controls">
-        <!-- <button onclick="updateChart(['阿莫西林', '板蓝根', '布洛芬'], [150, 200, 110])">数</button> -->
-    </div>
+        </div>
     <div id="main"></div>
+
+    <div class="comment-list-container">
+        <h2 class="comment-list-title">用户评论数量排名</h2>
+        {% if user_comment_counts %}
+            {% for user_id, username, comment_count in user_comment_counts %}
+                <div class="comment-item">
+                    <span class="username-with-index"><span class="serial-number">{{ loop.index }}.</span>{{ username }} (ID: {{ user_id }})</span>
+                    <span class="comment-count">评论数: {{ comment_count }}</span>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>暂无用户评论数据。</p>
+        {% endif %}
+    </div>
 
     <script>
         // 初始化 ECharts 实例
@@ -156,15 +209,7 @@
 
         // 初始化图表
         myChart.setOption(getChartOption(["药品数量", "用户数量","医生数量","评论总数"], [{{item_count}}, {{user_count}},{{doctor_count}},{{comment_count}}]));
-        myChart.setOption(getCharOption(["用户数量"],[1230]))
-        // 更新图表函数
-        function updateChart(names, sales) {
-            if (!names || !sales || names.length !== sales.length) {
-                alert('数据格式错误：名称和销量数组长度必须一致');
-                return;
-            }
-            myChart.setOption(getChartOption(names, sales));
-        }
+        // 这里你可能还有其他的图表初始化或更新代码，请保留它们
 
         // 自适应窗口大小
         window.addEventListener('resize', function() {

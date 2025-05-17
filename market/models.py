@@ -62,14 +62,13 @@ class Item(db.Model):
     quantity =db.Column(db.Integer(),nullable=False,default=100)
     specification =db.Column(db.String(length=30),nullable=False,unique=False)
     owner = db.Column(db.Integer(),db.ForeignKey('user.id')) # 外键连接用户id
-  #使用activity表来记录购买信息
-    def buy(self, user, item):
+    def buy(self, user, item, number:int):  # 加入 number的int参数用来进行用户的购买数量逻辑
         self.owner = user.id  # 设置商品的所有者
-        user.budget -= item.price  # 扣除用户的预算
-        item.quantity -= 1      #商品数量减一
+        user.budget -= number * item.price  # 扣除用户的预算
+        item.quantity -= number      #商品数量减一
         db.session.commit() #提前commit，解决延迟问题
 
-        if item.quantity == 0:
+        if item.quantity == 0:   # 物品已经没有了
             db.session.delete(item)
         db.session.commit()
     

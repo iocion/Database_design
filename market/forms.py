@@ -52,19 +52,22 @@ class UpdateItemForm(FlaskForm):
         if item:
             raise ValidationError('药品名称已经存在')
 
-# class AddItemForm(FlaskForm):
-#     def validate_item_name(self,item_name_to_check):
-#         item = Item.query.filter_by(username=item_name_to_check.data).first()
-#         if item:
-#             raise ValidationError('用户名已经存在')
-#         def validate_email_address(self,email_address_to_check):
-#             email_address= User.query.filter_by(email_address=email_address_to_check.data).first()
-#             if email_address:
-#                 raise ValidationError('该用户的邮箱已经存在')
-#     item_name = StringField(label='药品名称',validators=[Length(min=2,max=30),DataRequired()])
-#     item_price= StringField(label='',validators=[Email(),DataRequired()])
-#     item_ = PasswordField(label='password:',validators=[Length(min=6),DataRequired()])
-#     submit = SubmitField(label='Submit')
+class AddItemForm(FlaskForm):
+    item_name = StringField(label='药品名称', validators=[DataRequired()])
+    item_price = StringField(label='药品价格', validators=[DataRequired()])
+    item_barcode = StringField(label='药品条形码', validators=[DataRequired()])
+    item_description = StringField(label='药品描述', validators=[DataRequired()])
+    submit = SubmitField(label='添加药品')
+
+    def validate_item_name(self, item_name_to_check):
+        item = Item.query.filter_by(name=item_name_to_check.data).first()
+        if item:
+            raise ValidationError('药品名称已经存在')
+
+    def validate_item_barcode(self, item_barcode_to_check):
+        item = Item.query.filter_by(barcode=item_barcode_to_check.data).first()
+        if item:
+            raise ValidationError('药品条形码已经存在')
 # Flask-WTF Form 类
 class DoctorForm(FlaskForm):
     doctor_name = StringField(label='医生姓名(管理员)', validators=[Length(min=2, max=30), DataRequired()])
