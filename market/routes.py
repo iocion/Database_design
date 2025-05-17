@@ -254,6 +254,7 @@ def doctor_page():
     return render_template('doctor_home.html',item_count=item_count,user_count=user_count,doctor_count=doctor_count,comment_count= comment_count)
 
 @app.route('/profile')
+@login_required
 def profile():
     if isinstance(current_user, User):
         return  f'当前登录用户是 User: {current_user.username}'
@@ -363,7 +364,7 @@ def update_item(item_id):
     item = Item.query.get_or_404(item_id)
     # if current_user.id == current_user.admin or item.owner == current_user.id:
     # # 判断是否是管理员或者物品的拥有者
-    if True:   # 暂时没有判断
+    if current_user.doctor_id_number:   # 有这个属性才行
         if request.method == 'POST':
             item.name = request.form.get('item_name')
             item.price = request.form.get('item_price')
@@ -372,10 +373,10 @@ def update_item(item_id):
             item.description = request.form.get('item_description')
             db.session.commit()
             flash(f"成功更新物品: {item.name}", category="success")
-            return redirect(url_for('market_page'))
+            return redirect(url_for('doctor_outlook'))
         return render_template('update_item.html', item=item) # 渲染更新表单
     else:
-        flash("你没有权限更新这个物品", category="danger")
+        flash("你不是医生还想要更新药品", category="danger")
         return redirect(url_for('market_page'))
 # 删除货物
 
