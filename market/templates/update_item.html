@@ -44,9 +44,10 @@
             <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="item_barcode" name="item_barcode" type="text" value="{{ item.barcode }}">
         </div>
         <div class="flex items-center justify-between">
-            <button class="btn-custom-tailwind" type="submit">
-                更新药物信息
-            </button>
+                <button class="btn-outline-custom-tailwind" type="submit">
+                    更新药物信息
+                </button>
+            </form>
             <form method="POST" action="{{ url_for('delete_item', item_id=item.id) }}" style="display: inline;">
                 <button class="btn-outline-custom-tailwind" type="submit">
                     删除此药物

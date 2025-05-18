@@ -388,17 +388,17 @@ def update_item(item_id):
         return redirect(url_for('market_page'))
 # 删除货物
 
-@app.route('/delete_item/<int:item_id>', methods=['POST'])
+@app.route('/delete_item/<int:item_id>', methods=['POST','GET'])
 @login_required
 def delete_item(item_id):
     item = Item.query.get_or_404(item_id)
-    if item.owner == current_user.id:
+    if current_user.doctor_id_number:
         db.session.delete(item)
         db.session.commit()
         flash(f"成功删除物品: {item.name}", category="success")
     else:
         flash("你没有权限删除这个物品", category="danger")
-    return redirect(url_for('market_page'))
+    return redirect(url_for('doctor_outlook'))
 
 
 
@@ -477,7 +477,7 @@ def add_item():
             db.session.add(item_to_create)
             db.session.commit()
             flash(f'{item_to_create.name} 成功添加！！', category='success')
-            return redirect(url_for('admin_page'))  # 替换为你的管理员页面路由
+            return redirect(url_for('doctor_outlook'))  # 替换为你的管理员页面路由
         except IntegrityError:
             db.session.rollback()
             flash("添加药品失败，可能条形码或名称已存在", category="danger")
